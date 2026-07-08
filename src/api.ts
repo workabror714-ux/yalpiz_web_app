@@ -81,3 +81,61 @@ export async function fetchMenu(): Promise<MenuResult> {
     return DEMO;
   }
 }
+
+// ── Filiallar (branch) ──
+export interface Branch {
+  id: string;      // slug
+  name: string;
+  address: string;
+  lat: number | null;
+  lng: number | null;
+  isActive: boolean;
+}
+
+export async function fetchBranches(): Promise<Branch[]> {
+  if (!API) return [];
+  try {
+    const res = await fetch(`${API}/api/filials`);
+    if (!res.ok) return [];
+    const list = await res.json();
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+// ── Buyurtma yaratish ──
+export interface CreateOrderPayload {
+  customerName: string;
+  customerPhone: string;
+  items: { foodId: string; title: string; quantity: number }[];
+  orderType: 'delivery' | 'pickup';
+  paymentType: 'payme' | 'click' | 'cash';
+  address?: string;
+  location?: { lat: number; lng: number } | null;
+  filialId?: string;
+  filialName?: string;
+}
+
+export interface CreateOrderResult {
+  ok: boolean;
+  message: string;
+  orderId?: string;
+  paymentUrl?: string;
+}
+
+export async function createOrder(p: CreateOrderPayload): Promise<CreateOrderResult> {
+  if (!API) return { ok: false, message: "Backend sozlanmagan (VITE_API_URL yo'q)." };
+  try {
+    const res = await fetch(`${API}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(p),
+    });
+    const data = await res.json().catch(() => ({} as { message?: string; order?: { _id?: string }; paymentUrl?: string }));
+    if (!res.ok) return { ok: false, message: data?.message || `Xato (${res.status})` };
+    return { ok: true, message: data?.message || '', orderId: data?.order?._id, paymentUrl: data?.paymentUrl || '' };
+  } catch {
+    return { ok: false, message: 'Tarmoq xatosi. Internet aloqasini tekshiring.' };
+  }
+}
