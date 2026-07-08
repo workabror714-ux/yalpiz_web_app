@@ -184,7 +184,7 @@ export default function Hero({ lang, onExploreClick, onOrderClick }: HeroProps) 
               </div>
               <div className="text-left text-xs">
                 <span className="font-bold block text-brand-accent">
-                  {lang === 'uz' ? 'Sayt orqali chegirgma!' : 'Скидка на сайте!'}
+                  {lang === 'uz' ? 'Sayt orqali chegirma!' : 'Скидка на сайте!'}
                 </span>
                 <span className="text-white/80">
                   {lang === 'uz' ? 'Birinchi buyurtmaga' : 'На ваш первый заказ'}
