@@ -1,10 +1,23 @@
 import React from 'react';
-import { Search, Flame, Coffee, Salad, Sparkles, Box, LayoutGrid } from 'lucide-react';
+import { Search, Flame, Coffee, Salad, Sparkles, Box, LayoutGrid, UtensilsCrossed } from 'lucide-react';
 import { CategoryType, Language } from '../types';
+import { Category } from '../api';
 import { TRANSLATIONS } from '../data';
+
+// Kategoriya nomiga qarab mos ikonka (dinamik kategoriyalar uchun)
+function iconFor(name: string): React.ComponentType<{ className?: string }> {
+  const n = name.toLowerCase();
+  if (/osh|palov|guruch/.test(n)) return Sparkles;
+  if (/mangal|kabob|shash|gril/.test(n)) return Flame;
+  if (/salat|nordon|non/.test(n)) return Salad;
+  if (/ichim|choy|qahva|kofe|coffee|drink|sok|напит/.test(n)) return Coffee;
+  if (/set|plam|kombo|combo/.test(n)) return Box;
+  return UtensilsCrossed;
+}
 
 interface CategoryNavProps {
   lang: Language;
+  categories: Category[];
   selectedCategory: CategoryType;
   setSelectedCategory: (category: CategoryType) => void;
   searchQuery: string;
@@ -13,6 +26,7 @@ interface CategoryNavProps {
 
 export default function CategoryNav({
   lang,
+  categories,
   selectedCategory,
   setSelectedCategory,
   searchQuery,
@@ -20,13 +34,13 @@ export default function CategoryNav({
 }: CategoryNavProps) {
   const t = TRANSLATIONS[lang];
 
-  const categories: { id: CategoryType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  const catList: { id: CategoryType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'all', label: t.cat_all, icon: LayoutGrid },
-    { id: 'osh', label: t.cat_osh, icon: Sparkles },
-    { id: 'mangal', label: t.cat_mangal, icon: Flame },
-    { id: 'salatlar', label: t.cat_salatlar, icon: Salad },
-    { id: 'ichimliklar', label: t.cat_ichimliklar, icon: Coffee },
-    { id: 'setlar', label: t.cat_setlar, icon: Box },
+    ...categories.map((c) => ({
+      id: c.id,
+      label: lang === 'uz' ? c.label_uz : c.label_ru,
+      icon: iconFor(c.id),
+    })),
   ];
 
   return (
@@ -35,7 +49,7 @@ export default function CategoryNav({
       {/* Category Selection Scrolling Chips */}
       <div className="flex items-center justify-between gap-4 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-0">
         <div className="flex items-center gap-3">
-          {categories.map((cat) => {
+          {catList.map((cat) => {
             const Icon = cat.icon;
             const isActive = selectedCategory === cat.id;
             return (

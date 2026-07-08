@@ -1,6 +1,6 @@
 export type Language = 'uz' | 'ru';
 
-export type CategoryType = 'all' | 'osh' | 'mangal' | 'salatlar' | 'ichimliklar' | 'setlar';
+export type CategoryType = string; // 'all' yoki backend kategoriya nomi (category.uz)
 
 export interface MenuItem {
   id: string;
@@ -9,7 +9,7 @@ export interface MenuItem {
   desc_uz: string;
   desc_ru: string;
   price: number;
-  category: Exclude<CategoryType, 'all'>;
+  category: string;
   image: string;
   available: boolean;
   isPopular?: boolean;

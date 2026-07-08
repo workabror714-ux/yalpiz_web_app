@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Star, UtensilsCrossed, Send, ArrowRight } from 'lucide-react';
 
 import { CategoryType, Language, CartItem, MenuItem } from './types';
-import { MENU_ITEMS, TRANSLATIONS, TESTIMONIALS } from './data';
+import { TRANSLATIONS, TESTIMONIALS } from './data';
+import { fetchMenu, Category } from './api';
 
 // Component Imports
 import Header from './components/Header';
@@ -39,6 +40,11 @@ export default function App() {
   const [extraModal, setExtraModal] = useState<'orders' | 'profile' | null>(null);
   const [activeMobileTab, setActiveMobileTab] = useState<'menu' | 'cart' | 'orders' | 'profile' | null>('menu');
 
+  // Menyu — backend'dan (fetchMenu), xato bo'lsa demo fallback
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [menuLoading, setMenuLoading] = useState(true);
+
   const t = TRANSLATIONS[lang];
 
   // --- Persistence Sync ---
@@ -49,6 +55,15 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('yalpiz_cart', JSON.stringify(cart));
   }, [cart]);
+
+  // Menyuni backend'dan yuklash (bir marta; xato bo'lsa demo ishlatiladi)
+  useEffect(() => {
+    fetchMenu().then((r) => {
+      setMenuItems(r.items);
+      setCategories(r.categories);
+      setMenuLoading(false);
+    });
+  }, []);
 
   // Adjust bottom navigation status active tab based on view states
   useEffect(() => {
@@ -99,7 +114,7 @@ export default function App() {
 
   // --- Filtering & Search Logic ---
   const filteredMenuItems = useMemo(() => {
-    return MENU_ITEMS.filter((item) => {
+    return menuItems.filter((item) => {
       // Category match
       const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
 
@@ -120,7 +135,7 @@ export default function App() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [menuItems, selectedCategory, searchQuery]);
 
   // Navigate & scroll with offset handler
   const handleNavWithOffset = (href: string) => {
@@ -189,6 +204,7 @@ export default function App() {
         {/* Quick horizontal filter chips & Search bar */}
         <CategoryNav
           lang={lang}
+          categories={categories}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
           searchQuery={searchQuery}
@@ -197,6 +213,20 @@ export default function App() {
 
         {/* Dynamic Cards Grid */}
         <div className="pt-4">
+          {menuLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-3xl border border-brand-primary/5 overflow-hidden animate-pulse">
+                  <div className="aspect-4/3 bg-brand-primary/5" />
+                  <div className="p-5 sm:p-6 space-y-3">
+                    <div className="h-4 bg-brand-primary/5 rounded w-3/4" />
+                    <div className="h-3 bg-brand-primary/5 rounded w-full" />
+                    <div className="h-3 bg-brand-primary/5 rounded w-2/3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
           <AnimatePresence mode="popLayout">
             {filteredMenuItems.length > 0 ? (
               <motion.div
@@ -252,6 +282,7 @@ export default function App() {
               </motion.div>
             )}
           </AnimatePresence>
+          )}
         </div>
 
       </main>
