@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Trash2, Plus, Minus, CheckCircle, MapPin, CreditCard, ShoppingBag, Landmark } from 'lucide-react';
 import { CartItem, Language, OrderDetails } from '../types';
 import { BRANCHES, TRANSLATIONS } from '../data';
+import { createOrder, fetchBranches, Branch } from '../api';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -39,6 +40,24 @@ export default function CartDrawer({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccessId, setOrderSuccessId] = useState<string | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [branches, setBranches] = useState<Branch[]>([]);
+
+  // Filiallarni backend'dan yuklash (bo'lmasa data.ts fallback)
+  React.useEffect(() => {
+    fetchBranches().then((list) => {
+      if (list.length) {
+        setBranches(list);
+        setOrderDetails((p) => ({ ...p, branchId: list[0].id }));
+      }
+    });
+  }, []);
+
+  // Ko'rsatiladigan filiallar ro'yxati (backend > data.ts fallback)
+  const branchList = branches.length
+    ? branches
+    : BRANCHES.map((b) => ({ id: b.id, name: lang === 'uz' ? b.name_uz : b.name_ru, address: '', lat: null, lng: null, isActive: true }));
 
   // Totals calculations
   const subtotal = cart.reduce((acc, curr) => acc + curr.item.price * curr.quantity, 0);
@@ -65,8 +84,31 @@ export default function CartDrawer({
     setOrderDetails((prev) => ({
       ...prev,
       type,
+      // Yetkazib berishда naqd bo'lmaydi — online to'lovga o'tkazamiz
+      payment: type === 'delivery' && prev.payment === 'cash' ? 'payme' : prev.payment,
     }));
     setErrors({});
+  };
+
+  // Geolokatsiyani aniqlash (yetkazib berish uchun)
+  const detectLocation = () => {
+    if (!navigator.geolocation) {
+      setErrors((p) => ({ ...p, location: lang === 'uz' ? "Brauzer geolokatsiyani qo'llamaydi" : 'Браузер не поддерживает геолокацию' }));
+      return;
+    }
+    setLocating(true);
+    setErrors((p) => ({ ...p, location: '' }));
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        setErrors((p) => ({ ...p, location: lang === 'uz' ? "Joylashuvni aniqlab bo'lmadi. Brauzerda ruxsat bering." : 'Не удалось определить местоположение. Разрешите доступ.' }));
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const validateForm = () => {
@@ -77,50 +119,66 @@ export default function CartDrawer({
     if (!orderDetails.phone.trim() || orderDetails.phone.length < 7) {
       newErrors.phone = lang === 'uz' ? 'Telefon raqamini kiriting' : 'Введите номер телефона';
     }
-    if (orderDetails.type === 'delivery' && !orderDetails.address.trim()) {
-      newErrors.address = lang === 'uz' ? 'Yetkazib berish manzilini kiriting' : 'Введите адрес доставки';
+    if (orderDetails.type === 'delivery') {
+      if (!orderDetails.address.trim()) {
+        newErrors.address = lang === 'uz' ? 'Yetkazib berish manzilini kiriting' : 'Введите адрес доставки';
+      }
+      if (!location) {
+        newErrors.location = lang === 'uz' ? 'Joylashuvni aniqlang' : 'Определите местоположение';
+      }
+    }
+    if (orderDetails.payment === 'cash' && orderDetails.type !== 'pickup') {
+      newErrors.payment = lang === 'uz' ? "Naqd faqat olib ketishda. Yetkazib berishda online to'lov." : 'Наличные только при самовывозе.';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-
-    // Save profile info to local storage for future orders
     localStorage.setItem('yalpiz_user_name', orderDetails.name);
     localStorage.setItem('yalpiz_user_phone', orderDetails.phone);
     if (orderDetails.type === 'delivery') {
       localStorage.setItem('yalpiz_user_address', orderDetails.address);
     }
 
-    // Simulate order placement
-    setTimeout(() => {
-      const orderNum = Math.floor(10000 + Math.random() * 90000).toString();
-      
-      // Save order details to order history!
-      const orderItems = cart.map(c => `${c.quantity} x ${lang === 'uz' ? c.item.name_uz : c.item.name_ru}`).join(', ');
-      
-      const newOrder = {
-        id: orderNum,
-        date: new Date().toISOString().slice(0, 16).replace('T', ' '),
-        items: orderItems,
-        total: total,
-        status: 'preparing',
-        type: orderDetails.type
-      };
-      
-      const savedOrders = localStorage.getItem('yalpiz_order_history');
-      const parsedOrders = savedOrders ? JSON.parse(savedOrders) : [];
-      localStorage.setItem('yalpiz_order_history', JSON.stringify([newOrder, ...parsedOrders]));
+    const branch = branchList.find((b) => b.id === orderDetails.branchId);
+    const result = await createOrder({
+      customerName: orderDetails.name.trim(),
+      customerPhone: orderDetails.phone.trim(),
+      items: cart.map((c) => ({
+        foodId: c.item.id,
+        title: lang === 'uz' ? c.item.name_uz : c.item.name_ru,
+        quantity: c.quantity,
+      })),
+      orderType: orderDetails.type,
+      paymentType: orderDetails.payment,
+      address: orderDetails.address.trim(),
+      location: orderDetails.type === 'delivery' ? location : null,
+      filialId: orderDetails.branchId,
+      filialName: branch?.name || '',
+    });
 
-      setOrderSuccessId(orderNum);
-      setIsSubmitting(false);
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      setErrors((p) => ({ ...p, submit: result.message }));
+      return;
+    }
+
+    // Payme/Click — to'lov sahifasiga yo'naltirish
+    if (result.paymentUrl) {
       onClearCart();
-    }, 1500);
+      window.location.href = result.paymentUrl;
+      return;
+    }
+
+    // Naqd (pickup) — buyurtma botga tushdi, tasdiq ekrani
+    setOrderSuccessId(result.orderId ? result.orderId.slice(-5) : '—');
+    onClearCart();
   };
 
   const resetOrderProcess = () => {
@@ -135,6 +193,7 @@ export default function CartDrawer({
       comment: '',
     });
     setErrors({});
+    setLocation(null);
     onClose();
   };
 
@@ -437,6 +496,28 @@ export default function CartDrawer({
                           />
                         </div>
                         {errors.address && <p className="text-xs text-red-500 font-medium">{errors.address}</p>}
+
+                        {/* Geolokatsiya — taxi narxi uchun shart */}
+                        <button
+                          type="button"
+                          onClick={detectLocation}
+                          disabled={locating}
+                          className={`w-full mt-1 flex items-center justify-center gap-2 p-3 rounded-xl border text-xs font-bold transition-all cursor-pointer disabled:opacity-60 ${
+                            location
+                              ? 'bg-brand-primary/5 border-brand-primary text-brand-primary'
+                              : errors.location
+                              ? 'border-red-500 text-red-500'
+                              : 'bg-white border-brand-primary/10 text-brand-dark/70 hover:bg-brand-primary/5'
+                          }`}
+                        >
+                          <MapPin className="w-4 h-4" />
+                          {locating
+                            ? (lang === 'uz' ? 'Aniqlanmoqda…' : 'Определяется…')
+                            : location
+                            ? (lang === 'uz' ? 'Joylashuv aniqlandi ✓' : 'Местоположение определено ✓')
+                            : (lang === 'uz' ? 'Joylashuvimni aniqlash' : 'Определить местоположение')}
+                        </button>
+                        {errors.location && <p className="text-xs text-red-500 font-medium">{errors.location}</p>}
                       </div>
                     ) : (
                       /* Conditional Branch Selection */
@@ -451,9 +532,9 @@ export default function CartDrawer({
                           onChange={handleInputChange}
                           className="w-full p-3.5 bg-white border border-brand-primary/10 rounded-xl text-brand-dark text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
                         >
-                          {BRANCHES.map((b) => (
+                          {branchList.map((b) => (
                             <option key={b.id} value={b.id}>
-                              {lang === 'uz' ? b.name_uz : b.name_ru}
+                              {b.name}
                             </option>
                           ))}
                         </select>
@@ -497,15 +578,16 @@ export default function CartDrawer({
                           <span>Click</span>
                         </button>
 
-                        {/* Cash select card */}
+                        {/* Cash select card — faqat olib ketishda */}
                         <button
                           id="payment-cash-btn"
                           type="button"
+                          disabled={orderDetails.type !== 'pickup'}
                           onClick={() => setOrderDetails((prev) => ({ ...prev, payment: 'cash' }))}
-                          className={`p-3 rounded-xl border font-sans text-xs font-bold flex flex-col items-center justify-center gap-1 cursor-pointer transition-all ${
+                          className={`p-3 rounded-xl border font-sans text-xs font-bold flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                             orderDetails.payment === 'cash'
                               ? 'bg-brand-primary/5 border-brand-primary text-brand-primary ring-2 ring-brand-primary/10'
-                              : 'bg-white border-brand-primary/5 text-brand-dark/70 hover:bg-brand-primary/5'
+                              : 'bg-white border-brand-primary/5 text-brand-dark/70 hover:bg-brand-primary/5 cursor-pointer'
                           }`}
                         >
                           <CreditCard className="w-4 h-4 text-emerald-600" />
@@ -513,6 +595,7 @@ export default function CartDrawer({
                         </button>
 
                       </div>
+                      {errors.payment && <p className="text-xs text-red-500 font-medium">{errors.payment}</p>}
                     </div>
 
                     {/* Order comment */}
@@ -537,10 +620,12 @@ export default function CartDrawer({
                         <span>{lang === 'uz' ? 'Taomlar summasi:' : 'Сумма блюд:'}</span>
                         <span className="font-semibold">{formatPrice(subtotal)}</span>
                       </div>
-                      <div className="flex items-center justify-between text-xs sm:text-sm text-brand-muted border-b border-brand-primary/5 pb-2">
-                        <span>{t.cartDeliveryCost}</span>
-                        <span className="text-brand-primary font-bold">{t.cartFree}</span>
-                      </div>
+                      {orderDetails.type === 'delivery' && (
+                        <div className="flex items-center justify-between text-xs sm:text-sm text-brand-muted border-b border-brand-primary/5 pb-2">
+                          <span>{t.cartDeliveryCost}</span>
+                          <span className="text-brand-primary font-bold text-right">{t.cartFree}</span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between text-sm sm:text-base font-extrabold text-brand-dark pt-1">
                         <span>{t.cartTotal}</span>
                         <span className="text-base sm:text-lg text-brand-primary font-sans font-black">
@@ -548,6 +633,12 @@ export default function CartDrawer({
                         </span>
                       </div>
                     </div>
+
+                    {errors.submit && (
+                      <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-600 font-medium text-center">
+                        {errors.submit}
+                      </div>
+                    )}
 
                     {/* Submission Button */}
                     <button
