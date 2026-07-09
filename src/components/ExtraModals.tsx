@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ClipboardList, User, Save, Trash2, Clock, CheckCircle2 } from 'lucide-react';
+import { X, ClipboardList, User, Save, RefreshCw, Clock, CheckCircle2 } from 'lucide-react';
 import { Language } from '../types';
+import { fetchMyOrders, MyOrder } from '../api';
 
 interface ExtraModalsProps {
   lang: Language;
@@ -19,37 +20,27 @@ export default function ExtraModals({ lang, activeModal, onClose }: ExtraModalsP
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Orders History State
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<MyOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
-  // Load profile and orders on mount/modal open
+  // Profil ma'lumotlari (localStorage)
   useEffect(() => {
-    const savedName = localStorage.getItem('yalpiz_user_name') || '';
-    const savedPhone = localStorage.getItem('yalpiz_user_phone') || '';
-    const savedAddress = localStorage.getItem('yalpiz_user_address') || '';
-    setProfileName(savedName);
-    setProfilePhone(savedPhone);
-    setProfileAddress(savedAddress);
+    setProfileName(localStorage.getItem('yalpiz_user_name') || '');
+    setProfilePhone(localStorage.getItem('yalpiz_user_phone') || '');
+    setProfileAddress(localStorage.getItem('yalpiz_user_address') || '');
+  }, [activeModal]);
 
-    // Load custom made orders or generate a default welcome order
-    const savedOrders = localStorage.getItem('yalpiz_order_history');
-    if (savedOrders) {
-      setOrders(JSON.parse(savedOrders));
-    } else {
-      // Default initial welcome order to make it look active
-      const initialOrders = [
-        {
-          id: '10934',
-          date: '2026-07-06 18:24',
-          items: isUz ? '2 x Yalpiz Shoxona Oshi, 1 x Achichuk' : '2 x Плов Шахский Yalpiz, 1 x Ачичук',
-          total: 85000,
-          status: 'delivered',
-          type: 'delivery',
-        }
-      ];
-      localStorage.setItem('yalpiz_order_history', JSON.stringify(initialOrders));
-      setOrders(initialOrders);
-    }
-  }, [activeModal, isUz]);
+  // Buyurtmalar — backend'dan (telefon bo'yicha), modal ochilganda
+  useEffect(() => {
+    if (activeModal !== 'orders') return;
+    const phone = localStorage.getItem('yalpiz_user_phone') || '';
+    if (!phone) { setOrders([]); return; }
+    setOrdersLoading(true);
+    fetchMyOrders(phone).then((list) => {
+      setOrders(list);
+      setOrdersLoading(false);
+    });
+  }, [activeModal]);
 
   // Handle Profile Save
   const handleProfileSave = (e: React.FormEvent) => {
@@ -65,10 +56,33 @@ export default function ExtraModals({ lang, activeModal, onClose }: ExtraModalsP
     }, 1200);
   };
 
-  // Clear Order history
-  const handleClearHistory = () => {
-    localStorage.removeItem('yalpiz_order_history');
-    setOrders([]);
+  // Buyurtmalarni qayta yuklash
+  const handleRefreshOrders = () => {
+    const phone = localStorage.getItem('yalpiz_user_phone') || '';
+    if (!phone) return;
+    setOrdersLoading(true);
+    fetchMyOrders(phone).then((list) => {
+      setOrders(list);
+      setOrdersLoading(false);
+    });
+  };
+
+  // Buyurtma holati uchun rang/matn/ikonka
+  const statusBadge = (status: MyOrder['status']) => {
+    const map = {
+      new:       { cls: 'bg-amber-50 text-amber-600',     uz: 'Qabul qilindi', ru: 'Принят',     pulse: 'animate-pulse', done: false },
+      preparing: { cls: 'bg-amber-50 text-amber-600',     uz: 'Tayyorlanmoqda', ru: 'Готовится', pulse: 'animate-pulse', done: false },
+      on_way:    { cls: 'bg-blue-50 text-blue-600',       uz: "Yo'lda",         ru: 'В пути',     pulse: '',              done: false },
+      delivered: { cls: 'bg-emerald-50 text-emerald-600', uz: 'Yetkazildi',     ru: 'Доставлено', pulse: '',              done: true },
+      cancelled: { cls: 'bg-red-50 text-red-500',         uz: 'Bekor qilindi',  ru: 'Отменён',    pulse: '',              done: false },
+    };
+    const s = map[status] || map.new;
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 ${s.cls} rounded-full font-bold text-[10px] ${s.pulse}`}>
+        {s.done ? <CheckCircle2 className="w-3 h-3 fill-current" /> : status === 'cancelled' ? <X className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+        {isUz ? s.uz : s.ru}
+      </span>
+    );
   };
 
   if (!activeModal) return null;
@@ -126,11 +140,20 @@ export default function ExtraModals({ lang, activeModal, onClose }: ExtraModalsP
             {/* ORDERS MODAL content */}
             {activeModal === 'orders' && (
               <div className="space-y-4">
-                {orders.length === 0 ? (
+                {ordersLoading ? (
+                  <div className="text-center py-8 space-y-3">
+                    <RefreshCw className="w-10 h-10 text-brand-muted/40 mx-auto animate-spin" />
+                    <p className="font-sans text-brand-muted text-sm">
+                      {isUz ? 'Yuklanmoqda…' : 'Загрузка…'}
+                    </p>
+                  </div>
+                ) : orders.length === 0 ? (
                   <div className="text-center py-8 space-y-3">
                     <ClipboardList className="w-12 h-12 text-brand-muted/40 mx-auto" />
                     <p className="font-sans text-brand-muted text-sm">
-                      {isUz ? 'Hozircha buyurtmalar mavjud emas.' : 'У вас пока нет оформленных заказов.'}
+                      {localStorage.getItem('yalpiz_user_phone')
+                        ? (isUz ? 'Hozircha buyurtmalar mavjud emas.' : 'У вас пока нет оформленных заказов.')
+                        : (isUz ? "Buyurtmalar telefon raqamingiz bo'yicha ko'rsatiladi. Avval buyurtma bering." : 'Заказы отображаются по номеру телефона. Сначала оформите заказ.')}
                     </p>
                   </div>
                 ) : (
@@ -152,17 +175,7 @@ export default function ExtraModals({ lang, activeModal, onClose }: ExtraModalsP
 
                           <div className="flex items-center justify-between border-t border-brand-primary/5 pt-2 text-xs">
                             <div className="flex items-center gap-1.5">
-                              {order.status === 'delivered' ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full font-bold text-[10px]">
-                                  <CheckCircle2 className="w-3 h-3 fill-current" />
-                                  {isUz ? 'Yetkazildi' : 'Доставлено'}
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded-full font-bold text-[10px] animate-pulse">
-                                  <Clock className="w-3 h-3" />
-                                  {isUz ? 'Tayyorlanmoqda' : 'Готовится'}
-                                </span>
-                              )}
+                              {statusBadge(order.status)}
                             </div>
                             <span className="font-extrabold text-brand-dark">
                               {order.total.toLocaleString('uz-UZ')} {isUz ? 'so‘m' : 'сум'}
@@ -173,12 +186,12 @@ export default function ExtraModals({ lang, activeModal, onClose }: ExtraModalsP
                     </div>
 
                     <button
-                      id="clear-order-history-btn"
-                      onClick={handleClearHistory}
-                      className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer mt-4"
+                      id="refresh-orders-btn"
+                      onClick={handleRefreshOrders}
+                      className="w-full py-3 bg-brand-primary/5 hover:bg-brand-primary/10 text-brand-primary text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer mt-4"
                     >
-                      <Trash2 className="w-4 h-4" />
-                      <span>{isUz ? 'Tarixni tozalash' : 'Очистить историю'}</span>
+                      <RefreshCw className="w-4 h-4" />
+                      <span>{isUz ? 'Yangilash' : 'Обновить'}</span>
                     </button>
                   </>
                 )}

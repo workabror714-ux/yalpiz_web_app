@@ -139,3 +139,48 @@ export async function createOrder(p: CreateOrderPayload): Promise<CreateOrderRes
     return { ok: false, message: 'Tarmoq xatosi. Internet aloqasini tekshiring.' };
   }
 }
+
+// ── Mening buyurtmalarim (telefon bo'yicha) ──
+export type OrderStatus = 'new' | 'preparing' | 'on_way' | 'delivered' | 'cancelled';
+
+export interface MyOrder {
+  id: string;
+  date: string;
+  items: string;
+  total: number;
+  status: OrderStatus;
+  type: 'delivery' | 'pickup';
+}
+
+interface BackendOrder {
+  _id?: string;
+  items?: { title?: string; quantity?: number }[];
+  totalPrice?: number;
+  paymentAmount?: number;
+  orderType?: 'delivery' | 'pickup';
+  status?: string;
+  createdAt?: string;
+}
+
+export async function fetchMyOrders(phone: string): Promise<MyOrder[]> {
+  const clean = (phone || '').replace(/[^\d+]/g, '');
+  if (!API || !/^\+?\d{9,15}$/.test(clean)) return [];
+  try {
+    const res = await fetch(`${API}/api/orders/my/${encodeURIComponent(clean)}`);
+    if (!res.ok) return [];
+    const list: BackendOrder[] = await res.json();
+    if (!Array.isArray(list)) return [];
+    return list.map((o) => ({
+      id: o._id ? o._id.slice(-5) : '—',
+      date: o.createdAt
+        ? new Date(o.createdAt).toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : '',
+      items: (o.items || []).map((it) => `${it.quantity} × ${it.title}`).join(', '),
+      total: o.paymentAmount || o.totalPrice || 0,
+      status: (o.status as OrderStatus) || 'new',
+      type: o.orderType || 'delivery',
+    }));
+  } catch {
+    return [];
+  }
+}
