@@ -432,7 +432,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     footerSlogan: 'O‘zbek milliy oshxonasining eng sara an’analari zamonaviy ko‘rinishda.',
     footerHours: 'Ish vaqti: Har kuni 09:00 dan 23:00 gacha',
     footerSocials: 'Biz ijtimoiy tarmoqlarda',
-    footerBot: 'Telegram-bot orqali 10% arzonroq buyurtma bering',
+    footerBot: 'Telegram-bot orqali qulay va tez buyurtma bering',
     footerApp: 'Tez kunda Google Play va App Store platformalarida',
     footerRights: 'Barcha huquqlar himoyalangan.',
   },
@@ -550,7 +550,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     footerSlogan: 'Лучшие традиции узбекской национальной кухни в современном и стильном исполнении.',
     footerHours: 'Время работы: Ежедневно с 09:00 до 23:00',
     footerSocials: 'Мы в социальных сетях',
-    footerBot: 'Заказывайте через Telegram-бот со скидкой 10%',
+    footerBot: 'Заказывайте удобно и быстро через Telegram-бот',
     footerApp: 'Скоро в Google Play и App Store',
     footerRights: 'Все права защищены.',
   }

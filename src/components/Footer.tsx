@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, Clock, Instagram, Facebook, Send } from 'lucide-react';
+import { Phone, MapPin, Clock, Instagram, Facebook, Send } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data';
 
@@ -39,7 +39,7 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
               <div className="flex items-center gap-3">
                 <a
                   id="social-instagram"
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/yalpiz_restaurant/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-xl bg-white/5 hover:bg-brand-primary hover:text-brand-accent text-white flex items-center justify-center transition-all duration-200"
@@ -49,7 +49,7 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
                 </a>
                 <a
                   id="social-facebook"
-                  href="https://facebook.com"
+                  href="https://www.facebook.com/yalpiz.uz"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-xl bg-white/5 hover:bg-brand-primary hover:text-brand-accent text-white flex items-center justify-center transition-all duration-200"
@@ -59,7 +59,7 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
                 </a>
                 <a
                   id="social-telegram"
-                  href="https://t.me"
+                  href="https://t.me/restoran_buyurtma_bot"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-xl bg-white/5 hover:bg-brand-primary hover:text-brand-accent text-white flex items-center justify-center transition-all duration-200"
@@ -103,15 +103,19 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
             <div className="space-y-3 font-sans text-xs sm:text-sm text-white/80">
               <div className="flex items-center gap-3">
                 <Clock className="w-5 h-5 text-brand-accent flex-shrink-0" />
-                <span>{t.footerHours}</span>
+                <span>{lang === 'uz' ? 'Har kuni 10:00 - 00:00' : 'Ежедневно 10:00 - 00:00'}</span>
               </div>
-              <div className="flex items-center gap-3">
+              <a href="tel:+998333350011" className="flex items-center gap-3 hover:text-brand-accent transition-colors">
                 <Phone className="w-5 h-5 text-brand-accent flex-shrink-0" />
-                <span>+998 (71) 200-55-11</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-brand-accent flex-shrink-0" />
-                <span>info@yalpiz.uz</span>
+                <span>+998 33 335 00 11</span>
+              </a>
+              <a href="tel:+998951939898" className="flex items-center gap-3 hover:text-brand-accent transition-colors">
+                <Phone className="w-5 h-5 text-brand-accent flex-shrink-0" />
+                <span>+998 95 193 98 98</span>
+              </a>
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-brand-accent flex-shrink-0 mt-0.5" />
+                <span>{lang === 'uz' ? 'Mirobod ko‘chasi 5 · Shota Rustaveli 115' : 'ул. Миробод 5 · ул. Шота Руставели 115'}</span>
               </div>
             </div>
           </div>
@@ -125,7 +129,7 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
             {/* Telegram Bot Card */}
             <a
               id="footer-tg-bot-link"
-              href="https://t.me"
+              href="https://t.me/restoran_buyurtma_bot"
               target="_blank"
               rel="noopener noreferrer"
               className="block bg-brand-primary hover:bg-[#1a5c30] p-4 rounded-2xl border border-brand-accent/20 hover:border-brand-accent/40 shadow-sm transition-all text-left"
@@ -135,7 +139,7 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
                   <Send className="w-4.5 h-4.5 fill-current" />
                 </div>
                 <div className="text-xs">
-                  <span className="font-bold block text-brand-accent">@yalpiz_bot</span>
+                  <span className="font-bold block text-brand-accent">@restoran_buyurtma_bot</span>
                   <span className="text-white/80">{t.footerBot}</span>
                 </div>
               </div>
