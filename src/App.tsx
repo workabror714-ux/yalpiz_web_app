@@ -8,7 +8,7 @@ import { fetchMenu, Category } from './api';
 
 // Component Imports
 import Header from './components/Header';
-import Hero from './components/Hero';
+import HeroCarousel from './components/HeroCarousel';
 import Marquee from './components/Marquee';
 import CategoryNav from './components/CategoryNav';
 import ProductCard from './components/ProductCard';
@@ -177,7 +177,7 @@ export default function App() {
       />
 
       {/* 2. Hero Header */}
-      <Hero
+      <HeroCarousel
         lang={lang}
         onExploreClick={() => handleNavWithOffset('#menu')}
         onOrderClick={() => setCartOpen(true)}
