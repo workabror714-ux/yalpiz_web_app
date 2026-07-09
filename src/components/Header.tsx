@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Leaf, ShoppingBag, Menu, X, Globe } from 'lucide-react';
+import { Leaf, ShoppingBag, ClipboardList, Menu, X, Globe } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data';
 
@@ -10,6 +10,7 @@ interface HeaderProps {
   cartCount: number;
   onCartToggle: () => void;
   onOrderClick: () => void;
+  onOrdersClick: () => void;
 }
 
 export default function Header({
@@ -18,6 +19,7 @@ export default function Header({
   cartCount,
   onCartToggle,
   onOrderClick,
+  onOrdersClick,
 }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -135,6 +137,17 @@ export default function Header({
                 RU
               </button>
             </div>
+
+            {/* Orders / Tarix (Desktop) */}
+            <button
+              id="header-orders-btn"
+              onClick={onOrdersClick}
+              className="hidden md:inline-flex relative w-10 h-10 rounded-xl bg-white hover:bg-brand-primary hover:text-white transition-all duration-200 shadow-sm border border-brand-primary/5 items-center justify-center text-brand-dark cursor-pointer group"
+              aria-label={lang === 'uz' ? 'Buyurtmalarim' : 'Мои заказы'}
+              title={lang === 'uz' ? 'Buyurtmalarim' : 'Мои заказы'}
+            >
+              <ClipboardList className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+            </button>
 
             {/* Cart Button */}
             <button
