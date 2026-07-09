@@ -54,10 +54,11 @@ export default function ProductDetail({
             {/* Rasm */}
             <div className="relative aspect-4/3 bg-brand-primary/5 flex-shrink-0">
               <img
-                src={thumb(item.image, 800)}
+                src={thumb(item.image, 700)}
                 alt={name}
+                onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
                 onError={(e) => imgFallback(e, item.image)}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover opacity-0 transition-opacity duration-500"
                 referrerPolicy="no-referrer"
               />
               <button

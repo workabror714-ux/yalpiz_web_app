@@ -49,9 +49,10 @@ export default function ProductCard({
       {/* Product Image Section */}
       <div className="relative aspect-4/3 overflow-hidden bg-brand-primary/5">
         <img
-          src={thumb(item.image, 500)}
+          src={thumb(item.image, 450)}
           alt={name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-108"
+          onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
+          className="w-full h-full object-cover opacity-0 transition duration-500 group-hover:scale-108"
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
