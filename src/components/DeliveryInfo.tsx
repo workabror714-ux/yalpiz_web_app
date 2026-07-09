@@ -110,19 +110,13 @@ export default function DeliveryInfo({ lang }: DeliveryInfoProps) {
               
               {/* Payme Card */}
               <div className="bg-white p-4 sm:p-5 rounded-2xl border border-brand-primary/5 flex flex-col items-center justify-center text-center shadow-xs group hover:border-brand-primary/20 transition-all duration-300">
-                <div className="w-10 h-10 rounded-full bg-[#00c2e8]/10 flex items-center justify-center text-[#00c2e8] font-bold text-xs uppercase tracking-widest mb-2">
-                  PM
-                </div>
-                <span className="font-sans font-bold text-brand-dark text-xs sm:text-sm">Payme</span>
+                <img src="/payme.png" alt="Payme" className="h-6 sm:h-7 w-auto mb-2" />
                 <span className="font-mono text-[9px] text-[#00c2e8] mt-1 font-semibold tracking-wider uppercase">{lang === 'uz' ? 'Onlayn' : 'Онлайн'}</span>
               </div>
 
               {/* Click Card */}
               <div className="bg-white p-4 sm:p-5 rounded-2xl border border-brand-primary/5 flex flex-col items-center justify-center text-center shadow-xs group hover:border-brand-primary/20 transition-all duration-300">
-                <div className="w-10 h-10 rounded-full bg-[#0052cc]/10 flex items-center justify-center text-[#0052cc] font-bold text-xs uppercase tracking-widest mb-2">
-                  CL
-                </div>
-                <span className="font-sans font-bold text-brand-dark text-xs sm:text-sm">Click</span>
+                <img src="/click.png" alt="Click" className="h-6 sm:h-7 w-auto mb-2" />
                 <span className="font-mono text-[9px] text-[#0052cc] mt-1 font-semibold tracking-wider uppercase">{lang === 'uz' ? 'Onlayn' : 'Онлайн'}</span>
               </div>
 

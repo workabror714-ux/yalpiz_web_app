@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Trash2, Plus, Minus, CheckCircle, MapPin, CreditCard, ShoppingBag, Landmark } from 'lucide-react';
+import { X, Trash2, Plus, Minus, CheckCircle, MapPin, CreditCard, ShoppingBag } from 'lucide-react';
 import { CartItem, Language, OrderDetails } from '../types';
 import { BRANCHES, TRANSLATIONS } from '../data';
 import { createOrder, fetchBranches, Branch } from '../api';
@@ -559,8 +559,7 @@ export default function CartDrawer({
                               : 'bg-white border-brand-primary/5 text-brand-dark/70 hover:bg-brand-primary/5'
                           }`}
                         >
-                          <Landmark className="w-4 h-4 text-sky-500" />
-                          <span>Payme</span>
+                          <img src="/payme.png" alt="Payme" className="h-5 w-auto" />
                         </button>
 
                         {/* Click select card */}
@@ -574,8 +573,7 @@ export default function CartDrawer({
                               : 'bg-white border-brand-primary/5 text-brand-dark/70 hover:bg-brand-primary/5'
                           }`}
                         >
-                          <Landmark className="w-4 h-4 text-indigo-500" />
-                          <span>Click</span>
+                          <img src="/click.png" alt="Click" className="h-5 w-auto" />
                         </button>
 
                         {/* Cash select card — faqat olib ketishda */}
