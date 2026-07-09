@@ -12,6 +12,7 @@ interface ProductCardProps {
   quantityInCart: number;
   onAddToCart: () => void;
   onUpdateQuantity: (qty: number) => void;
+  onSelect: () => void;
 }
 
 export default function ProductCard({
@@ -20,6 +21,7 @@ export default function ProductCard({
   quantityInCart,
   onAddToCart,
   onUpdateQuantity,
+  onSelect,
 }: ProductCardProps) {
   const t = TRANSLATIONS[lang];
 
@@ -41,7 +43,8 @@ export default function ProductCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
       transition={{ duration: 0.4 }}
-      className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-brand-primary/5 hover:border-brand-primary/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group"
+      onClick={onSelect}
+      className="bg-white rounded-2xl sm:rounded-3xl overflow-hidden border border-brand-primary/5 hover:border-brand-primary/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full group cursor-pointer"
     >
       {/* Product Image Section */}
       <div className="relative aspect-4/3 overflow-hidden bg-brand-primary/5">
@@ -107,7 +110,7 @@ export default function ProductCard({
         </p>
 
         {/* Price and Action row */}
-        <div className="mt-3 sm:mt-6 pt-3 sm:pt-4 border-t border-brand-primary/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+        <div className="mt-3 sm:mt-6 pt-3 sm:pt-4 border-t border-brand-primary/5 flex flex-col gap-2 sm:gap-3">
           
           {/* Price */}
           <div className="flex flex-col">
@@ -121,9 +124,9 @@ export default function ProductCard({
 
           {/* Cart Stepper or Add button */}
           {item.available && (
-            <div className="flex-shrink-0 w-full sm:w-auto">
+            <div className="flex-shrink-0 w-full" onClick={(e) => e.stopPropagation()}>
               {quantityInCart > 0 ? (
-                <div className="flex items-center justify-center sm:justify-start bg-brand-primary text-white rounded-xl overflow-hidden shadow-md">
+                <div className="flex items-center justify-center bg-brand-primary text-white rounded-xl overflow-hidden shadow-md">
                   <button
                     id={`qty-decrease-${item.id}`}
                     onClick={() => onUpdateQuantity(quantityInCart - 1)}
@@ -150,8 +153,8 @@ export default function ProductCard({
               ) : (
                 <button
                   id={`add-to-cart-btn-${item.id}`}
-                  onClick={onAddToCart}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-brand-primary hover:bg-brand-dark text-white text-xs sm:text-sm font-bold rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                  onClick={(e) => { e.stopPropagation(); onAddToCart(); }}
+                  className="w-full px-4 py-2.5 bg-brand-primary hover:bg-brand-dark text-white text-xs sm:text-sm font-bold rounded-xl transition-all duration-200 shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
                   <Plus className="w-4 h-4" />
                   <span>{t.addToCart}</span>

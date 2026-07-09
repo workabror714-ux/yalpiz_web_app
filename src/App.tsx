@@ -12,6 +12,7 @@ import Hero from './components/Hero';
 import Marquee from './components/Marquee';
 import CategoryNav from './components/CategoryNav';
 import ProductCard from './components/ProductCard';
+import ProductDetail from './components/ProductDetail';
 import Promotions from './components/Promotions';
 import WhyUs from './components/WhyUs';
 import About from './components/About';
@@ -44,6 +45,7 @@ export default function App() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [menuLoading, setMenuLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<MenuItem | null>(null);
 
   const t = TRANSLATIONS[lang];
 
@@ -245,6 +247,7 @@ export default function App() {
                       quantityInCart={qty}
                       onAddToCart={() => handleAddToCart(item)}
                       onUpdateQuantity={(newQty) => handleUpdateQuantity(item.id, newQty)}
+                      onSelect={() => setSelectedProduct(item)}
                     />
                   );
                 })}
@@ -378,6 +381,16 @@ export default function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveItem}
         onClearCart={handleClearCart}
+      />
+
+      {/* Taom tafsilotlari (popup) */}
+      <ProductDetail
+        item={selectedProduct}
+        lang={lang}
+        quantityInCart={selectedProduct ? (cart.find((c) => c.item.id === selectedProduct.id)?.quantity || 0) : 0}
+        onAddToCart={() => selectedProduct && handleAddToCart(selectedProduct)}
+        onUpdateQuantity={(newQty) => selectedProduct && handleUpdateQuantity(selectedProduct.id, newQty)}
+        onClose={() => setSelectedProduct(null)}
       />
 
       {/* 13. Mobile popups: History and profile sheets */}
