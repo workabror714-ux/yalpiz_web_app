@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Star, UtensilsCrossed, Send, ArrowRight } from 'lucide-react';
+import { Sparkles, Star, UtensilsCrossed, Send, ArrowRight, ChevronDown } from 'lucide-react';
 
 import { CategoryType, Language, CartItem, MenuItem } from './types';
 import { TRANSLATIONS, TESTIMONIALS } from './data';
@@ -46,6 +46,10 @@ export default function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [menuLoading, setMenuLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<MenuItem | null>(null);
+  const [expandedCats, setExpandedCats] = useState<string[]>([]);
+  const INITIAL_PER_CAT = 8; // "Barchasi"da har category'dan dastlab shuncha (2 qator)
+  const toggleCat = (id: string) =>
+    setExpandedCats((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
 
   const t = TRANSLATIONS[lang];
 
@@ -139,6 +143,22 @@ export default function App() {
     });
   }, [menuItems, selectedCategory, searchQuery]);
 
+  const renderCard = (item: MenuItem) => {
+    const cartEntry = cart.find((c) => c.item.id === item.id);
+    const qty = cartEntry ? cartEntry.quantity : 0;
+    return (
+      <ProductCard
+        key={item.id}
+        item={item}
+        lang={lang}
+        quantityInCart={qty}
+        onAddToCart={() => handleAddToCart(item)}
+        onUpdateQuantity={(newQty) => handleUpdateQuantity(item.id, newQty)}
+        onSelect={() => setSelectedProduct(item)}
+      />
+    );
+  };
+
   // Navigate & scroll with offset handler
   const handleNavWithOffset = (href: string) => {
     const element = document.querySelector(href);
@@ -230,6 +250,44 @@ export default function App() {
                 </div>
               ))}
             </div>
+          ) : selectedCategory === 'all' && !searchQuery.trim() ? (
+            /* Category bo'yicha guruhlangan — har biridan 2 qator + "Ko'proq" */
+            <div className="space-y-14">
+              {categories.map((cat) => {
+                const catItems = menuItems.filter((it) => it.category === cat.id);
+                if (!catItems.length) return null;
+                const expanded = expandedCats.includes(cat.id);
+                const visible = expanded ? catItems : catItems.slice(0, INITIAL_PER_CAT);
+                return (
+                  <div key={cat.id}>
+                    <div className="flex items-end justify-between mb-5 gap-4">
+                      <h3 className="font-serif text-2xl sm:text-3xl font-bold text-brand-dark">
+                        {lang === 'uz' ? cat.label_uz : cat.label_ru}
+                      </h3>
+                      <span className="text-xs text-brand-muted whitespace-nowrap">
+                        {catItems.length} {lang === 'uz' ? 'ta taom' : 'блюд'}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+                      {visible.map(renderCard)}
+                    </div>
+                    {catItems.length > INITIAL_PER_CAT && (
+                      <div className="text-center mt-6">
+                        <button
+                          onClick={() => toggleCat(cat.id)}
+                          className="px-6 py-2.5 bg-white border-2 border-brand-primary/15 hover:border-brand-primary/40 text-brand-primary text-sm font-bold rounded-xl transition-all cursor-pointer inline-flex items-center gap-2"
+                        >
+                          {expanded
+                            ? (lang === 'uz' ? "Kamroq ko'rsatish" : 'Показать меньше')
+                            : (lang === 'uz' ? `Ko'proq (${catItems.length - INITIAL_PER_CAT})` : `Ещё (${catItems.length - INITIAL_PER_CAT})`)}
+                          <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           ) : (
           <AnimatePresence mode="popLayout">
             {filteredMenuItems.length > 0 ? (
@@ -237,21 +295,7 @@ export default function App() {
                 layout
                 className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8"
               >
-                {filteredMenuItems.map((item) => {
-                  const cartEntry = cart.find((c) => c.item.id === item.id);
-                  const qty = cartEntry ? cartEntry.quantity : 0;
-                  return (
-                    <ProductCard
-                      key={item.id}
-                      item={item}
-                      lang={lang}
-                      quantityInCart={qty}
-                      onAddToCart={() => handleAddToCart(item)}
-                      onUpdateQuantity={(newQty) => handleUpdateQuantity(item.id, newQty)}
-                      onSelect={() => setSelectedProduct(item)}
-                    />
-                  );
-                })}
+                {filteredMenuItems.map(renderCard)}
               </motion.div>
             ) : (
               /* No search matches fallbacks */
