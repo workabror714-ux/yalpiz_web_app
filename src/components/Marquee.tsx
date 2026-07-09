@@ -21,8 +21,8 @@ export default function Marquee({ lang }: MarqueeProps) {
   const duplicatedItems = [...items, ...items, ...items, ...items];
 
   return (
-    <div className="bg-brand-primary py-4 overflow-hidden border-y-2 border-brand-accent/25 select-none shadow-sm">
-      <div className="relative w-full flex items-center">
+    <div className="bg-brand-primary py-4 overflow-hidden border-y-2 border-brand-accent/25 select-none shadow-sm w-full min-w-0">
+      <div className="relative w-full flex items-center overflow-hidden">
         <div className="animate-marquee whitespace-nowrap flex items-center gap-8">
           {duplicatedItems.map((item, index) => (
             <div key={index} className="inline-flex items-center gap-3">

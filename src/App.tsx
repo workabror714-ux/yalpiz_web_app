@@ -161,7 +161,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f5f0] text-brand-dark flex flex-col font-sans selection:bg-brand-accent selection:text-brand-dark">
+    <div className="min-h-screen bg-[#f7f5f0] text-brand-dark flex flex-col font-sans overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark">
       
       {/* 1. Header Navigation */}
       <Header
@@ -184,7 +184,7 @@ export default function App() {
       <Marquee lang={lang} />
 
       {/* 4. Interactive Menu Grid Block */}
-      <main id="menu" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 flex-grow">
+      <main id="menu" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 flex-grow min-w-0">
         
         {/* Section title */}
         <div className="text-center max-w-xl mx-auto space-y-3">
@@ -215,7 +215,7 @@ export default function App() {
         {/* Dynamic Cards Grid */}
         <div className="pt-4">
           {menuLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="bg-white rounded-3xl border border-brand-primary/5 overflow-hidden animate-pulse">
                   <div className="aspect-4/3 bg-brand-primary/5" />
@@ -232,7 +232,7 @@ export default function App() {
             {filteredMenuItems.length > 0 ? (
               <motion.div
                 layout
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8"
+                className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8"
               >
                 {filteredMenuItems.map((item) => {
                   const cartEntry = cart.find((c) => c.item.id === item.id);
