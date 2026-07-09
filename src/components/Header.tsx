@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Leaf, ShoppingBag, ClipboardList, Menu, X, Globe } from 'lucide-react';
+import { ShoppingBag, Menu, X, Globe } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data';
+import ProfileMenu from './ProfileMenu';
 
 interface HeaderProps {
   lang: Language;
@@ -11,6 +12,7 @@ interface HeaderProps {
   onCartToggle: () => void;
   onOrderClick: () => void;
   onOrdersClick: () => void;
+  onProfileClick: () => void;
 }
 
 export default function Header({
@@ -20,6 +22,7 @@ export default function Header({
   onCartToggle,
   onOrderClick,
   onOrdersClick,
+  onProfileClick,
 }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -81,17 +84,11 @@ export default function Header({
             }}
             className="flex items-center gap-2 group"
           >
-            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-brand-accent shadow-md transition-transform duration-300 group-hover:rotate-12">
-              <Leaf className="w-5 h-5 fill-current" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-serif text-2xl font-bold tracking-wider text-brand-dark leading-none">
-                YALPIZ
-              </span>
-              <span className="text-[10px] tracking-widest text-brand-primary font-medium uppercase mt-0.5">
-                {t.brandSlogan}
-              </span>
-            </div>
+            <img
+              src="/logo_green.png"
+              alt="YALPIZ"
+              className="h-9 sm:h-11 w-auto transition-transform duration-300 group-hover:scale-105"
+            />
           </a>
 
           {/* Desktop Navigation */}
@@ -138,17 +135,6 @@ export default function Header({
               </button>
             </div>
 
-            {/* Orders / Tarix (Desktop) */}
-            <button
-              id="header-orders-btn"
-              onClick={onOrdersClick}
-              className="hidden md:inline-flex relative w-10 h-10 rounded-xl bg-white hover:bg-brand-primary hover:text-white transition-all duration-200 shadow-sm border border-brand-primary/5 items-center justify-center text-brand-dark cursor-pointer group"
-              aria-label={lang === 'uz' ? 'Buyurtmalarim' : 'Мои заказы'}
-              title={lang === 'uz' ? 'Buyurtmalarim' : 'Мои заказы'}
-            >
-              <ClipboardList className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
-            </button>
-
             {/* Cart Button */}
             <button
               id="header-cart-btn"
@@ -167,14 +153,10 @@ export default function Header({
               )}
             </button>
 
-            {/* Call to Action (Desktop) */}
-            <button
-              id="header-cta-order"
-              onClick={onOrderClick}
-              className="hidden sm:inline-flex items-center justify-center px-5 py-2.5 bg-brand-primary text-white hover:bg-brand-dark text-sm font-semibold rounded-xl transition-all duration-200 shadow-md shadow-brand-primary/20 active:scale-95 cursor-pointer"
-            >
-              {t.orderBtn}
-            </button>
+            {/* Profil dropdown (Desktop) */}
+            <div className="hidden md:block">
+              <ProfileMenu lang={lang} onOpenOrders={onOrdersClick} onOpenProfile={onProfileClick} />
+            </div>
 
             {/* Mobile Menu Button */}
             <button

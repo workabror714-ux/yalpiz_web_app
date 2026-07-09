@@ -173,6 +173,7 @@ export default function App() {
         onCartToggle={() => setCartOpen(!cartOpen)}
         onOrderClick={() => setCartOpen(true)}
         onOrdersClick={() => setExtraModal('orders')}
+        onProfileClick={() => setExtraModal('profile')}
       />
 
       {/* 2. Hero Header */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Phone, Mail, Clock, Instagram, Facebook, Send } from 'lucide-react';
+import { Phone, Mail, Clock, Instagram, Facebook, Send } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data';
 
@@ -26,12 +26,7 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
           {/* Column 1: Brand Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-brand-primary flex items-center justify-center text-brand-accent shadow-md">
-                <Leaf className="w-5 h-5 fill-current" />
-              </div>
-              <span className="font-serif text-2xl font-bold tracking-wider text-white">
-                YALPIZ
-              </span>
+              <img src="/logo_white.png" alt="YALPIZ" className="h-10 w-auto" />
             </div>
             <p className="font-sans text-white/70 text-xs sm:text-sm leading-relaxed">
               {t.footerSlogan}
