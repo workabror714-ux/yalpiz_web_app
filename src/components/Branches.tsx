@@ -111,7 +111,7 @@ export default function Branches({ lang }: BranchesProps) {
                     {/* Get directions in external map */}
                     <a
                       id={`branch-directions-${branch.id}`}
-                      href="https://maps.google.com"
+                      href={branch.mapUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto px-5 py-3 bg-white border border-brand-primary/10 hover:bg-brand-primary/5 text-brand-dark rounded-xl text-xs sm:text-sm font-semibold transition-colors duration-200 flex items-center justify-center gap-2"

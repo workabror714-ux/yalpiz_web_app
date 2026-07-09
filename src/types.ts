@@ -35,6 +35,7 @@ export interface Branch {
   phone: string;
   phoneRaw: string;
   mapEmbedUrl: string;
+  mapUrl: string;
 }
 
 export interface Promo {

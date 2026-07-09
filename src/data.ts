@@ -257,29 +257,31 @@ export const PROMOS: Promo[] = [
 
 export const BRANCHES: Branch[] = [
   {
-    id: 'branch-tashkent-center',
-    name_uz: 'Yalpiz — Amir Temur filiali',
-    name_ru: 'Yalpiz — Филиал Амира Темура',
-    address_uz: 'Toshkent sh., Amir Temur shoh ko‘chasi, 45-uy (Mo‘ljal: Oloy bozori)',
-    address_ru: 'г. Ташкент, проспект Амира Темура, д. 45 (Ориентир: Алайский рынок)',
-    hours_uz: 'Har kuni 09:00 - 23:00',
-    hours_ru: 'Ежедневно 09:00 - 23:00',
-    phone: '+998 (71) 200-55-11',
-    phoneRaw: '+998712005511',
-    mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2996.9749174092523!2d69.2783852!3d41.3121516!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38ae8b2be7e179e9%3A0x6e9f54854581f3e7!2sAmir%20Temur%20Square!5e0!3m2!1sen!2suz!4v1710000000000!5m2!1sen!2suz'
+    id: 'branch-mirobod',
+    name_uz: 'Yalpiz — Mirobod filiali',
+    name_ru: 'Yalpiz — Филиал Миробод',
+    address_uz: 'Toshkent sh., Mirobod ko‘chasi, 5-uy',
+    address_ru: 'г. Ташкент, ул. Миробод, д. 5',
+    hours_uz: 'Har kuni 10:00 - 00:00',
+    hours_ru: 'Ежедневно 10:00 - 00:00',
+    phone: '+998 33 335 00 11',
+    phoneRaw: '+998333350011',
+    mapEmbedUrl: 'https://maps.google.com/maps?q=41.302113,69.266892&z=16&output=embed',
+    mapUrl: 'https://yandex.uz/maps/-/CTuTY00P',
   },
   {
-    id: 'branch-tashkent-chilonzor',
-    name_uz: 'Yalpiz — Chilonzor filiali',
-    name_ru: 'Yalpiz — Филиал Чиланзар',
-    address_uz: 'Toshkent sh., Chilonzor ko‘chasi, Qatortol 12-uy (Mo‘ljal: Chilonzor savdo markazi)',
-    address_ru: 'г. Ташкент, Чиланзарский район, ул. Катартал, д. 12 (Ориентир: ТЦ Чиланзар)',
-    hours_uz: 'Har kuni 10:00 - 23:00',
-    hours_ru: 'Ежедневно 10:00 - 23:00',
-    phone: '+998 (71) 200-55-22',
-    phoneRaw: '+998712005522',
-    mapEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000.345892374102!2d69.21323!3d41.28211!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38ae8a3b50cbf173%3A0xe7a505bdf9ff1ea7!2sChilonzor%2C%20Tashkent!5e0!3m2!1sen!2suz!4v1710000000001!5m2!1sen!2suz'
-  }
+    id: 'branch-rustaveli',
+    name_uz: 'Yalpiz — Shota Rustaveli filiali',
+    name_ru: 'Yalpiz — Филиал Шота Руставели',
+    address_uz: 'Toshkent sh., Shota Rustaveli ko‘chasi, 115-uy',
+    address_ru: 'г. Ташкент, ул. Шота Руставели, д. 115',
+    hours_uz: 'Har kuni 10:00 - 00:00',
+    hours_ru: 'Ежедневно 10:00 - 00:00',
+    phone: '+998 95 193 98 98',
+    phoneRaw: '+998951939898',
+    mapEmbedUrl: 'https://maps.google.com/maps?q=41.261786,69.227980&z=16&output=embed',
+    mapUrl: 'https://yandex.uz/maps/-/CTuTYQ~M',
+  },
 ];
 
 export const TESTIMONIALS: Testimonial[] = [
