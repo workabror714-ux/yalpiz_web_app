@@ -16,7 +16,7 @@ interface Slide {
   badge_uz: string; badge_ru: string;
   title_uz: string; title_ru: string;
   sub_uz: string; sub_ru: string;
-  cta: 'order' | 'menu';
+  cta: 'order' | 'menu' | 'booking';
 }
 
 // Rasmlar hozircha placeholder (Unsplash). public/ ga qo'yib yoki URL bilan almashtiring.
@@ -44,6 +44,14 @@ const SLIDES: Slide[] = [
     sub_uz: 'Menyuni ko‘ring, savatga qo‘shing va buyurtma bering — oson.',
     sub_ru: 'Смотрите меню, добавляйте в корзину и заказывайте — легко.',
     cta: 'menu',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1600&q=80',
+    badge_uz: 'Tadbirlar uchun', badge_ru: 'Для событий',
+    title_uz: 'Bayramingizni biz bilan nishonlang', title_ru: 'Отпразднуйте праздник у нас',
+    sub_uz: "Tug'ilgan kun, nikoh va yubiley uchun restoranda joy bron qiling.",
+    sub_ru: 'Забронируйте место для дня рождения, свадьбы или юбилея.',
+    cta: 'booking',
   },
 ];
 
@@ -133,10 +141,14 @@ export default function HeroCarousel({ lang, onExploreClick, onOrderClick }: Her
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
               <button
-                onClick={s.cta === 'order' ? onOrderClick : onExploreClick}
+                onClick={() => {
+                  if (s.cta === 'order') onOrderClick();
+                  else if (s.cta === 'booking') document.querySelector('#promos')?.scrollIntoView({ behavior: 'smooth' });
+                  else onExploreClick();
+                }}
                 className="px-7 py-3.5 bg-brand-primary text-white hover:bg-brand-dark rounded-2xl font-semibold shadow-lg shadow-brand-dark/30 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 cursor-pointer group"
               >
-                {s.cta === 'order' ? t.orderBtn : t.exploreMenu}
+                {s.cta === 'order' ? t.orderBtn : s.cta === 'booking' ? (isUz ? 'Joy bron qilish' : 'Забронировать') : t.exploreMenu}
                 <ArrowRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1" />
               </button>
               <button

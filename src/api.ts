@@ -184,3 +184,30 @@ export async function fetchMyOrders(phone: string): Promise<MyOrder[]> {
     return [];
   }
 }
+
+// ── Joy bron qilish ──
+export interface BookingPayload {
+  name: string;
+  phone: string;
+  date?: string;
+  time?: string;
+  guests?: string;
+  eventType?: string;
+  note?: string;
+}
+
+export async function createBooking(p: BookingPayload): Promise<{ ok: boolean; message: string }> {
+  if (!API) return { ok: false, message: "Backend sozlanmagan (VITE_API_URL yo'q)." };
+  try {
+    const res = await fetch(`${API}/api/booking`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(p),
+    });
+    const data = await res.json().catch(() => ({} as { message?: string }));
+    if (!res.ok) return { ok: false, message: data?.message || `Xato (${res.status})` };
+    return { ok: true, message: data?.message || 'Arizangiz qabul qilindi.' };
+  } catch {
+    return { ok: false, message: 'Tarmoq xatosi. Internet aloqasini tekshiring.' };
+  }
+}

@@ -13,7 +13,7 @@ import Marquee from './components/Marquee';
 import CategoryNav from './components/CategoryNav';
 import ProductCard from './components/ProductCard';
 import ProductDetail from './components/ProductDetail';
-import Promotions from './components/Promotions';
+import BookingSection from './components/BookingSection';
 import WhyUs from './components/WhyUs';
 import About from './components/About';
 import Branches from './components/Branches';
@@ -337,7 +337,7 @@ export default function App() {
       </main>
 
       {/* 5. Featured / Promo cards Banner block */}
-      <Promotions lang={lang} onPromoClick={handlePromoClick} />
+      <BookingSection lang={lang} />
 
       {/* 6. Why Choose Us values list */}
       <WhyUs lang={lang} />
