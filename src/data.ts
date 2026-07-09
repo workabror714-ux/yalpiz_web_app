@@ -370,10 +370,10 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     cat_setlar: 'Maxsus To‘plamlar (Set)',
 
     // About Section
-    aboutTitle: 'Yalpiz — Shoxona mehmondo‘stlik an’analari',
-    aboutP1: '"Yalpiz" — bu o‘zbek xalqining ko‘p asrlik mehmondo‘stlik madaniyati va zamonaviy gastronomik talablarini o‘zida mujassam etgan oilaviy restoran tarmog‘idir. Restoranimiz nomi bejizga murchli yalpiz sharafiga qo‘yilmagan, u o‘zbek dasturxonining eng xushbo‘y bezagi va taomlarimizning yengilligi timsolidir.',
-    aboutP2: 'Biz an’analarga sodiq qolib, palovlarimizni faqatgina mis qozonlarda, archa va chinor o‘tinida pishiramiz. Kaboblarimiz esa ko‘mir qo‘rida, tajribali mangal ustalari tomonidan maxsus marinadlar bilan tortiladi. Har bir tandir nonimiz qo‘l mehnati ila, issiqqina qilib dasturxoningizga yetkaziladi.',
-    aboutP3: 'Yalpizda nafaqat milliy ta’mlar, balki oilaviy qadriyatlar va chin dildan mehmondo‘stlik qadrlanadi. Bizning vazifamiz — har bir xonadonga milliy dasturxon to‘kinligini olib kirishdir.',
+    aboutTitle: 'Yalpiz — samimiy mehmondo‘stlik va milliy ta’m',
+    aboutP1: '"Yalpiz" — Toshkentdagi oilaviy restoran bo‘lib, o‘zbek xalqining ko‘p asrlik mehmondo‘stlik madaniyatini zamonaviy talablar bilan uyg‘unlashtiradi. Restoran nomi xushbo‘y yalpiz sharafiga qo‘yilgan — u dasturxonimizning yengillik va tozalik timsolidir.',
+    aboutP2: 'Menyuimiz boy va rang-barang: an’anaviy palov, sersuv shashlik va kaboblar, lag‘mon, tansiq salatlar hamda issiq tandir non. Portsiyalarimiz to‘kin, narxlarimiz esa hamyonbop — har bir mehmon to‘yib va mamnun qaytadi.',
+    aboutP3: 'Har bir mehmonni iliq choy bilan kutib olamiz. Yalpizda oilaviy iliqlik va samimiy g‘amxo‘rlik qadrlanadi — tug‘ilgan kun, nikoh va boshqa tadbirlaringiz uchun ham eng yaxshi tanlov. Ikki filialimiz Mirobod va Shota Rustaveli ko‘chalarida sizni kutadi.',
 
     // Branches
     branchesTitle: 'Bizning Filiallarimiz',
@@ -488,10 +488,10 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     cat_setlar: 'Специальные Сеты',
 
     // About Section
-    aboutTitle: 'Yalpiz — Традиции царского гостеприимства',
-    aboutP1: '«Yalpiz» — это сеть семейных ресторанов, которая объединяет в себе многовековую культуру узбекского гостеприимства и современные гастрономические стандарты. Наше название переводится как «мята» — главный символ свежести, легкости и души узбекского застолья.',
-    aboutP2: 'Мы верны традициям: наш фирменный плов томится исключительно в медных казанах на дровах арчи и чинары. Шашлыки созревают на березовых углях под строгим надзором мастеров мангала, а лепешки выпекаются вручную и доставляются пышащими жаром.',
-    aboutP3: 'В ресторанах Yalpiz ценят не просто вкусную еду, а семейное тепло и искреннюю заботу о каждом госте. Наша цель — приносить изобилие национального дастархана в каждый дом.',
+    aboutTitle: 'Yalpiz — искреннее гостеприимство и национальный вкус',
+    aboutP1: '«Yalpiz» — семейный ресторан в Ташкенте, объединяющий многовековую культуру узбекского гостеприимства с современными стандартами. Название происходит от ароматной мяты — символа свежести и лёгкости нашего дастархана.',
+    aboutP2: 'Наше меню богато и разнообразно: традиционный плов, сочные шашлыки и кебабы, лагман, свежие салаты и горячие тандырные лепёшки. Порции щедрые, а цены доступные — каждый гость уходит сытым и довольным.',
+    aboutP3: 'Каждого гостя мы встречаем чашкой ароматного чая. В Yalpiz ценят семейное тепло и искреннюю заботу — это отличный выбор для дня рождения, свадьбы и других торжеств. Два наших филиала ждут вас на улицах Миробод и Шота Руставели.',
 
     // Branches
     branchesTitle: 'Наши Филиалы',

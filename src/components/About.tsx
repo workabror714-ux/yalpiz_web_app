@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Leaf, Award, Compass } from 'lucide-react';
+import { Leaf, Award, UtensilsCrossed } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data';
 
@@ -56,9 +56,9 @@ export default function About({ lang }: AboutProps) {
 
             {/* Visual highlight box: Years of quality */}
             <div className="absolute -bottom-4 -right-2 bg-brand-accent text-brand-dark p-4 rounded-2xl shadow-xl flex items-center gap-3 border border-white">
-              <span className="font-serif text-3xl font-bold leading-none">12+</span>
+              <span className="font-serif text-3xl font-bold leading-none">2</span>
               <span className="font-sans text-xs font-semibold leading-tight">
-                {lang === 'uz' ? 'Yillik milliy\ntajriba' : 'Лет кулинарного\nопыта'}
+                {lang === 'uz' ? 'Qulay\nfilial' : 'Удобных\nфилиала'}
               </span>
             </div>
 
@@ -93,24 +93,24 @@ export default function About({ lang }: AboutProps) {
                 </div>
                 <div>
                   <h4 className="font-sans font-bold text-brand-dark text-sm sm:text-base">
-                    {lang === 'uz' ? 'Oshpazlar mahorati' : 'Мастерство шефов'}
+                    {lang === 'uz' ? 'Samimiy xizmat' : 'Радушный сервис'}
                   </h4>
                   <p className="font-sans text-xs sm:text-sm text-brand-muted mt-0.5">
-                    {lang === 'uz' ? 'Barcha oshpazlarimiz milliy akademiyada tahsil olgan.' : 'Наши повара — признанные мастера традиционной кухни.'}
+                    {lang === 'uz' ? 'Har bir mehmonni iliq choy va samimiy kutib olamiz.' : 'Каждого гостя встречаем чаем и искренней заботой.'}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-brand-primary/5 flex items-center justify-center text-brand-primary flex-shrink-0">
-                  <Compass className="w-5 h-5" />
+                  <UtensilsCrossed className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="font-sans font-bold text-brand-dark text-sm sm:text-base">
-                    {lang === 'uz' ? 'Avlodlar merosi' : 'Наследие поколений'}
+                    {lang === 'uz' ? 'To‘kin dasturxon' : 'Щедрые порции'}
                   </h4>
                   <p className="font-sans text-xs sm:text-sm text-brand-muted mt-0.5">
-                    {lang === 'uz' ? 'Retseptlarimiz asrlardan beri o‘zgarmay kelmoqda.' : 'Бережно храним старинные кулинарные рецепты предков.'}
+                    {lang === 'uz' ? 'Katta va to‘kin portsiyalar, hamyonbop narxlarda.' : 'Большие щедрые порции по доступным ценам.'}
                   </p>
                 </div>
               </div>
