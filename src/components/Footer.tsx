@@ -80,7 +80,7 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
               <a href="#menu" onClick={(e) => handleLinkClick(e, '#menu')} className="hover:text-brand-accent transition-colors">
                 {t.navMenu}
               </a>
-              <a href="#promos" onClick={(e) => handleLinkClick(e, '#promos')} className="hover:text-brand-accent transition-colors">
+              <a href="#booking" onClick={(e) => handleLinkClick(e, '#booking')} className="hover:text-brand-accent transition-colors">
                 {t.navPromo}
               </a>
               <a href="#about" onClick={(e) => handleLinkClick(e, '#about')} className="hover:text-brand-accent transition-colors">

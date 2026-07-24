@@ -53,7 +53,7 @@ export default function BookingSection({ lang }: BookingSectionProps) {
   ];
 
   return (
-    <section id="promos" className="py-14 sm:py-16 bg-[#143a22] text-white rounded-[32px] my-12 relative overflow-hidden shadow-xl mx-4 sm:mx-6 lg:mx-8">
+    <section id="booking" className="py-14 sm:py-16 bg-[#143a22] text-white rounded-[32px] my-12 relative overflow-hidden shadow-xl mx-4 sm:mx-6 lg:mx-8">
       {/* Dekorativ */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-brand-accent/10 rounded-full blur-3xl -z-0" />
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-brand-primary/20 rounded-full blur-3xl -z-0" />

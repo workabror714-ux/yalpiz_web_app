@@ -38,28 +38,39 @@ export default function Header({
 
   const navItems = [
     { name: t.navMenu, href: '#menu' },
-    { name: t.navPromo, href: '#promos' },
+    { name: t.navPromo, href: '#booking' },
     { name: t.navAbout, href: '#about' },
     { name: t.navBranches, href: '#branches' },
     { name: t.navContact, href: '#delivery' },
   ];
 
+  const scrollToSection = (href: string) => {
+    const targetId = href.replace(/^#/, '');
+    const element = document.getElementById(targetId);
+    if (!element) return;
+
+    const headerHeight = document.getElementById('main-header')?.offsetHeight ?? 80;
+    const targetTop = window.scrollY + element.getBoundingClientRect().top - headerHeight - 12;
+
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: 'smooth',
+    });
+
+    window.history.replaceState(null, '', href);
+  };
+
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    setMobileMenuOpen(false);
-    const element = document.querySelector(href);
-    if (element) {
-      const offset = 80; // height of header
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
+    if (mobileMenuOpen) {
+      // Drawer yopilganda sahifa balandligi o‘zgaradi. Scrollni animatsiya tugagach bajaramiz.
+      setMobileMenuOpen(false);
+      window.setTimeout(() => scrollToSection(href), 320);
+      return;
     }
+
+    scrollToSection(href);
   };
 
   return (
@@ -163,7 +174,9 @@ export default function Header({
               id="mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden w-10 h-10 rounded-xl bg-white text-brand-dark border border-brand-primary/5 flex items-center justify-center shadow-sm cursor-pointer"
-              aria-label="Toggle Menu"
+              aria-label={mobileMenuOpen ? 'Menyuni yopish' : 'Menyuni ochish'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-drawer"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
