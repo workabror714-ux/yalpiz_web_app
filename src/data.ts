@@ -257,30 +257,17 @@ export const PROMOS: Promo[] = [
 
 export const BRANCHES: Branch[] = [
   {
-    id: 'branch-mirobod',
-    name_uz: 'Yalpiz — Mirobod filiali',
-    name_ru: 'Yalpiz — Филиал Миробод',
-    address_uz: 'Toshkent sh., Mirobod ko‘chasi, 5-uy',
-    address_ru: 'г. Ташкент, ул. Миробод, д. 5',
-    hours_uz: 'Har kuni 10:00 - 00:00',
-    hours_ru: 'Ежедневно 10:00 - 00:00',
-    phone: '+998 33 335 00 11',
-    phoneRaw: '+998333350011',
-    mapEmbedUrl: 'https://maps.google.com/maps?q=41.302113,69.266892&z=16&output=embed',
-    mapUrl: 'https://yandex.uz/maps/-/CTuTY00P',
-  },
-  {
     id: 'branch-rustaveli',
-    name_uz: 'Yalpiz — Shota Rustaveli filiali',
-    name_ru: 'Yalpiz — Филиал Шота Руставели',
+    name_uz: 'Yalpiz — Shota Rustaveli 115',
+    name_ru: 'Yalpiz — Шота Руставели, 115',
     address_uz: 'Toshkent sh., Shota Rustaveli ko‘chasi, 115-uy',
     address_ru: 'г. Ташкент, ул. Шота Руставели, д. 115',
-    hours_uz: 'Har kuni 10:00 - 00:00',
-    hours_ru: 'Ежедневно 10:00 - 00:00',
+    hours_uz: 'Har kuni 10:00–00:00',
+    hours_ru: 'Ежедневно 10:00–00:00',
     phone: '+998 95 193 98 98',
     phoneRaw: '+998951939898',
-    mapEmbedUrl: 'https://maps.google.com/maps?q=41.261786,69.227980&z=16&output=embed',
-    mapUrl: 'https://yandex.uz/maps/-/CTuTYQ~M',
+    mapEmbedUrl: 'https://maps.google.com/maps?q=41.2616693,69.2278536&z=17&output=embed',
+    mapUrl: 'https://maps.app.goo.gl/gqtPmmVPRRTcLWCv9',
   },
 ];
 
@@ -325,7 +312,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     navMenu: 'Menyu',
     navPromo: 'Aksiyalar',
     navAbout: 'Biz haqimizda',
-    navBranches: 'Filiallar',
+    navBranches: 'Manzil',
     navContact: 'Aloqa',
     orderBtn: 'Buyurtma berish',
     searchPlaceholder: 'Taomlarni qidirish...',
@@ -344,7 +331,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Hero Section
     heroTitle: 'Milliy taomlar — eshigingizgacha',
-    heroSub: 'An’anaviy retseptlar, eng yangi mahsulotlar va professional oshpazlardan mahorat mahsuli. Toshkent bo‘ylab 40 daqiqada issiq holda yetkazish.',
+    heroSub: 'An’anaviy retseptlar, yangi mahsulotlar va professional oshpazlar mahorati. Toshkent bo‘ylab yetkazib berish va olib ketish xizmati.',
     marqueeFreeDelivery: 'Tez va ishonchli yetkazamiz',
     marqueeFreshDishes: 'Yangi yopilgan issiq nonlar',
     marqueeHotAndFresh: 'Issiq va sersuv kaboblar',
@@ -375,11 +362,11 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     aboutTitle: 'Yalpiz — samimiy mehmondo‘stlik va milliy ta’m',
     aboutP1: '"Yalpiz" — Toshkentdagi oilaviy restoran bo‘lib, o‘zbek xalqining ko‘p asrlik mehmondo‘stlik madaniyatini zamonaviy talablar bilan uyg‘unlashtiradi. Restoran nomi xushbo‘y yalpiz sharafiga qo‘yilgan — u dasturxonimizning yengillik va tozalik timsolidir.',
     aboutP2: 'Menyuimiz boy va rang-barang: an’anaviy palov, sersuv shashlik va kaboblar, lag‘mon, tansiq salatlar hamda issiq tandir non. Portsiyalarimiz to‘kin, narxlarimiz esa hamyonbop — har bir mehmon to‘yib va mamnun qaytadi.',
-    aboutP3: 'Har bir mehmonni iliq choy bilan kutib olamiz. Yalpizda oilaviy iliqlik va samimiy g‘amxo‘rlik qadrlanadi — tug‘ilgan kun, nikoh va boshqa tadbirlaringiz uchun ham eng yaxshi tanlov. Ikki filialimiz Mirobod va Shota Rustaveli ko‘chalarida sizni kutadi.',
+    aboutP3: 'Har bir mehmonni iliq kutib olamiz. Yalpiz tug‘ilgan kun, nikoh, banket va boshqa tadbirlar uchun qulay tanlov. Toshkent shahri, Shota Rustaveli ko‘chasi 115-uydagi restoranimiz har kuni sizni kutadi.',
 
     // Branches
-    branchesTitle: 'Bizning Filiallarimiz',
-    branchesSub: 'Sizga eng yaqin bo‘lgan restoranimizga tashrif buyuring yoki olib ketish uchun buyurtma bering',
+    branchesTitle: 'Yalpiz restorani manzili',
+    branchesSub: 'Shota Rustaveli 115-uydagi restoranimizga tashrif buyuring yoki olib ketish uchun buyurtma bering',
     branchHours: 'Ish vaqti',
     branchPhone: 'Telefon',
     branchAddress: 'Manzil',
@@ -393,7 +380,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     step2Title: 'Manzil va ma’lumotlar',
     step2Desc: 'Yetkazib berish manzilini kiriting yoki o‘zingizga qulay filialni tanlang.',
     step3Title: 'Issiqqina qabul qiling',
-    step3Desc: 'Kuryerimiz 40 daqiqa ichida taomlarni termosumkada eshigingizgacha olib boradi.',
+    step3Desc: 'Buyurtmangiz holatiga qarab taomlar issiq holda ko‘rsatilgan manzilga yetkaziladi.',
     paymentTitle: 'To‘lov usullari',
     paymentDesc: 'Siz buyurtmani o‘zingizga qulay tarzda to‘lashingiz mumkin:',
     payme: 'Payme orqali onlayn',
@@ -430,7 +417,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Footer
     footerSlogan: 'O‘zbek milliy oshxonasining eng sara an’analari zamonaviy ko‘rinishda.',
-    footerHours: 'Ish vaqti: Har kuni 09:00 dan 23:00 gacha',
+    footerHours: 'Ish vaqti: Har kuni 10:00 dan 00:00 gacha',
     footerSocials: 'Biz ijtimoiy tarmoqlarda',
     footerBot: 'Telegram-bot orqali qulay va tez buyurtma bering',
     footerApp: 'Tez kunda Google Play va App Store platformalarida',
@@ -443,7 +430,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     navMenu: 'Меню',
     navPromo: 'Акции',
     navAbout: 'О нас',
-    navBranches: 'Филиалы',
+    navBranches: 'Адрес',
     navContact: 'Контакты',
     orderBtn: 'Заказать сейчас',
     searchPlaceholder: 'Поиск блюд...',
@@ -462,7 +449,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Hero Section
     heroTitle: 'Национальные блюда — прямо к вам домой',
-    heroSub: 'Традиционные рецепты, свежайшие продукты и мастерство шеф-поваров. Горячая доставка по Ташкенту за 40 минут в термосумках.',
+    heroSub: 'Традиционные рецепты, свежие продукты и мастерство поваров. Доставка по Ташкенту и удобный самовывоз.',
     marqueeFreeDelivery: 'Быстрая и надёжная доставка',
     marqueeFreshDishes: 'Горячие лепешки из тандыра',
     marqueeHotAndFresh: 'Горячие сочные шашлыки',
@@ -493,11 +480,11 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     aboutTitle: 'Yalpiz — искреннее гостеприимство и национальный вкус',
     aboutP1: '«Yalpiz» — семейный ресторан в Ташкенте, объединяющий многовековую культуру узбекского гостеприимства с современными стандартами. Название происходит от ароматной мяты — символа свежести и лёгкости нашего дастархана.',
     aboutP2: 'Наше меню богато и разнообразно: традиционный плов, сочные шашлыки и кебабы, лагман, свежие салаты и горячие тандырные лепёшки. Порции щедрые, а цены доступные — каждый гость уходит сытым и довольным.',
-    aboutP3: 'Каждого гостя мы встречаем чашкой ароматного чая. В Yalpiz ценят семейное тепло и искреннюю заботу — это отличный выбор для дня рождения, свадьбы и других торжеств. Два наших филиала ждут вас на улицах Миробод и Шота Руставели.',
+    aboutP3: 'В Yalpiz ценят семейное тепло и искреннюю заботу. Ресторан подходит для дней рождения, свадеб, банкетов и других мероприятий. Мы ждём вас в Ташкенте по адресу: улица Шота Руставели, 115.',
 
     // Branches
-    branchesTitle: 'Наши Филиалы',
-    branchesSub: 'Посетите ближайший ресторан или оформите заказ для самовывоза',
+    branchesTitle: 'Адрес ресторана Yalpiz',
+    branchesSub: 'Посетите ресторан на Шота Руставели, 115 или оформите заказ навынос',
     branchHours: 'Режим работы',
     branchPhone: 'Телефон',
     branchAddress: 'Адрес',
@@ -511,7 +498,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     step2Title: 'Укажите детали',
     step2Desc: 'Введите адрес доставки или выберите удобный для вас филиал самовывоза.',
     step3Title: 'Получите горячим',
-    step3Desc: 'Наш курьер привезет ваш заказ в термосумке прямо к двери в течение 40 минут.',
+    step3Desc: 'В зависимости от условий заказа блюда будут доставлены горячими по указанному адресу.',
     paymentTitle: 'Способы оплаты',
     paymentDesc: 'Вы можете оплатить свой заказ любым удобным для вас способом:',
     payme: 'Онлайн через Payme',
@@ -548,7 +535,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
 
     // Footer
     footerSlogan: 'Лучшие традиции узбекской национальной кухни в современном и стильном исполнении.',
-    footerHours: 'Время работы: Ежедневно с 09:00 до 23:00',
+    footerHours: 'Время работы: Ежедневно с 10:00 до 00:00',
     footerSocials: 'Мы в социальных сетях',
     footerBot: 'Заказывайте удобно и быстро через Telegram-бот',
     footerApp: 'Скоро в Google Play и App Store',

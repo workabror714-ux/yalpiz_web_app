@@ -1,6 +1,6 @@
 {
-  "name": "Yalpiz",
-  "description": "Uzbek national-cuisine restaurant with online ordering (delivery & pickup)",
+  "name": "Yalpiz Restaurant",
+  "description": "Toshkent, Shota Rustaveli 115 dagi oilaviy restoran. Onlayn buyurtma, yetkazib berish, olib ketish va stol bron qilish.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

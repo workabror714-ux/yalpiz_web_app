@@ -1,0 +1,14 @@
+{
+  "name": "Yalpiz Restaurant",
+  "short_name": "Yalpiz",
+  "description": "Toshkent, Shota Rustaveli 115 dagi oilaviy restoran",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#143a22",
+  "lang": "uz",
+  "icons": [
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -18,7 +18,7 @@ export default function Branches({ lang }: BranchesProps) {
         <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 rounded-full text-brand-primary font-bold text-xs uppercase tracking-widest">
             <MapPin className="w-3.5 h-3.5" />
-            <span>{lang === 'uz' ? 'Restoranlarimiz' : 'Наши рестораны'}</span>
+            <span>{lang === 'uz' ? 'Yalpiz manzili' : 'Адрес Yalpiz'}</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-brand-dark">
             {t.branchesTitle}
@@ -29,7 +29,7 @@ export default function Branches({ lang }: BranchesProps) {
         </div>
 
         {/* Branches Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
           {BRANCHES.map((branch: Branch) => {
             const name = lang === 'uz' ? branch.name_uz : branch.name_ru;
             const address = lang === 'uz' ? branch.address_uz : branch.address_ru;

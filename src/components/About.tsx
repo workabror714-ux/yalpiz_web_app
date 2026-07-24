@@ -25,7 +25,7 @@ export default function About({ lang }: AboutProps) {
             <div className="col-span-8 rounded-3xl overflow-hidden shadow-lg aspect-3/4 bg-brand-primary/5">
               <img
                 src="https://images.unsplash.com/photo-1541832676-9b763b0239ab?q=80&w=600&auto=format&fit=crop"
-                alt="Cooking pilaf traditionally over fire"
+                alt={lang === 'uz' ? 'Yalpiz restoranida tayyorlanayotgan issiq taom' : 'Приготовление горячего блюда в ресторане Yalpiz'}
                 className="w-full h-full object-cover hover:scale-103 transition-transform duration-500"
                 referrerPolicy="no-referrer"
                 loading="lazy"
@@ -37,7 +37,7 @@ export default function About({ lang }: AboutProps) {
               <div className="rounded-2xl overflow-hidden shadow-md aspect-square bg-brand-primary/5">
                 <img
                   src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=300&auto=format&fit=crop"
-                  alt="Fresh organic tomatoes for Achichuk"
+                  alt={lang === 'uz' ? 'Yalpiz restorani uchun yangi sabzavotlar' : 'Свежие овощи для блюд ресторана Yalpiz'}
                   className="w-full h-full object-cover hover:scale-103 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                   loading="lazy"
@@ -46,7 +46,7 @@ export default function About({ lang }: AboutProps) {
               <div className="rounded-2xl overflow-hidden shadow-md aspect-square bg-brand-primary/5">
                 <img
                   src="https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=300&auto=format&fit=crop"
-                  alt="Fresh baking flatbread"
+                  alt={lang === 'uz' ? 'Yalpiz restoranidagi issiq tandir non' : 'Горячая лепёшка в ресторане Yalpiz'}
                   className="w-full h-full object-cover hover:scale-103 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                   loading="lazy"
@@ -56,9 +56,9 @@ export default function About({ lang }: AboutProps) {
 
             {/* Visual highlight box: Years of quality */}
             <div className="absolute -bottom-4 -right-2 bg-brand-accent text-brand-dark p-4 rounded-2xl shadow-xl flex items-center gap-3 border border-white">
-              <span className="font-serif text-3xl font-bold leading-none">2</span>
+              <span className="font-serif text-3xl font-bold leading-none">1</span>
               <span className="font-sans text-xs font-semibold leading-tight">
-                {lang === 'uz' ? 'Qulay\nfilial' : 'Удобных\nфилиала'}
+                {lang === 'uz' ? 'Qulay\nmanzil' : 'Удобный\nадрес'}
               </span>
             </div>
 

@@ -22,6 +22,7 @@ import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import BottomNav from './components/BottomNav';
 import ExtraModals from './components/ExtraModals';
+import SeoLocalSection from './components/SeoLocalSection';
 
 export default function App() {
   // --- Core States ---
@@ -56,6 +57,19 @@ export default function App() {
   // --- Persistence Sync ---
   useEffect(() => {
     localStorage.setItem('yalpiz_lang', lang);
+
+    const isUz = lang === 'uz';
+    document.documentElement.lang = isUz ? 'uz' : 'ru';
+    document.title = isUz
+      ? 'Yalpiz Restaurant Yakkasaroy — Shota Rustaveli 115, Toshkent'
+      : 'Ресторан Yalpiz в Ташкенте — Шота Руставели, 115';
+
+    const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (description) {
+      description.content = isUz
+        ? 'Yalpiz — Toshkent, Shota Rustaveli 115 dagi oilaviy restoran. O‘zbek va turk taomlari, yetkazib berish, olib ketish, stol va banket bron qilish.'
+        : 'Yalpiz — семейный ресторан в Ташкенте по адресу Шота Руставели, 115. Узбекская и турецкая кухня, доставка, самовывоз и бронирование.';
+    }
   }, [lang]);
 
   useEffect(() => {
@@ -411,10 +425,13 @@ export default function App() {
       {/* 9. physical Locations locator cards + embedded Maps */}
       <Branches lang={lang} />
 
-      {/* 10. Delivery / Payment instructions */}
+      {/* 10. Local SEO information and FAQ */}
+      <SeoLocalSection lang={lang} />
+
+      {/* 11. Delivery / Payment instructions */}
       <DeliveryInfo lang={lang} />
 
-      {/* 11. Footer details and Telegram connections */}
+      {/* 12. Footer details and Telegram connections */}
       <Footer lang={lang} onNavClick={handleNavWithOffset} />
 
       {/* 12. Client Checkout sliding Drawer */}

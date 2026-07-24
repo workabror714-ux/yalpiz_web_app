@@ -26,7 +26,7 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
           {/* Column 1: Brand Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <img src="/logo_white.png" alt="YALPIZ" className="h-10 w-auto" />
+              <img src="/logo_white.png" alt="Yalpiz restorani logosi" className="h-10 w-auto" />
             </div>
             <p className="font-sans text-white/70 text-xs sm:text-sm leading-relaxed">
               {t.footerSlogan}
@@ -105,17 +105,13 @@ export default function Footer({ lang, onNavClick }: FooterProps) {
                 <Clock className="w-5 h-5 text-brand-accent flex-shrink-0" />
                 <span>{lang === 'uz' ? 'Har kuni 10:00 - 00:00' : 'Ежедневно 10:00 - 00:00'}</span>
               </div>
-              <a href="tel:+998333350011" className="flex items-center gap-3 hover:text-brand-accent transition-colors">
-                <Phone className="w-5 h-5 text-brand-accent flex-shrink-0" />
-                <span>+998 33 335 00 11</span>
-              </a>
               <a href="tel:+998951939898" className="flex items-center gap-3 hover:text-brand-accent transition-colors">
                 <Phone className="w-5 h-5 text-brand-accent flex-shrink-0" />
                 <span>+998 95 193 98 98</span>
               </a>
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-brand-accent flex-shrink-0 mt-0.5" />
-                <span>{lang === 'uz' ? 'Mirobod ko‘chasi 5 · Shota Rustaveli 115' : 'ул. Миробод 5 · ул. Шота Руставели 115'}</span>
+                <span>{lang === 'uz' ? 'Toshkent sh., Shota Rustaveli ko‘chasi, 115-uy' : 'г. Ташкент, ул. Шота Руставели, 115'}</span>
               </div>
             </div>
           </div>
