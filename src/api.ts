@@ -1,25 +1,22 @@
-// Backend bilan bog'lanish — menyu food-order-system dan olinadi.
-// VITE_API_URL berilsa real menyu; berilmasa yoki xato bo'lsa demo (data.ts).
 import { MenuItem } from './types';
-import { MENU_ITEMS, TRANSLATIONS } from './data';
 
 const API = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 
 export interface Category {
-  id: string;        // filtrlash uchun (backend: category.uz)
+  id: string;
   label_uz: string;
   label_ru: string;
 }
 
-export type MenuSource = 'api' | 'demo';
+export type MenuSource = 'api' | 'unavailable';
 
 export interface MenuResult {
   items: MenuItem[];
   categories: Category[];
   source: MenuSource;
+  error?: string;
 }
 
-// Backend Food shakli (food-order-system/models/Food.js)
 interface BackendFood {
   _id: string;
   title?: { uz?: string; ru?: string };
@@ -30,162 +27,85 @@ interface BackendFood {
   isAvailable?: boolean;
 }
 
-function mapFood(f: BackendFood): MenuItem {
+function mapFood(food: BackendFood): MenuItem {
+  const titleUz = (food.title?.uz || food.title?.ru || '').trim();
+  const titleRu = (food.title?.ru || food.title?.uz || '').trim();
+  const descriptionUz = (food.description?.uz || food.description?.ru || '').trim();
+  const descriptionRu = (food.description?.ru || food.description?.uz || '').trim();
+
   return {
-    id: f._id,
-    name_uz: (f.title?.uz || '').trim(),
-    name_ru: (f.title?.ru || f.title?.uz || '').trim(),
-    desc_uz: (f.description?.uz || '').trim(),
-    desc_ru: (f.description?.ru || f.description?.uz || '').trim(),
-    price: Number(f.price) || 0,
-    category: (f.category?.uz || 'Boshqa').trim(),
-    image: f.image || '',
-    available: f.isAvailable !== false,
+    id: food._id,
+    name_uz: titleUz,
+    name_ru: titleRu,
+    desc_uz: descriptionUz,
+    desc_ru: descriptionRu,
+    price: Number(food.price) || 0,
+    category: (food.category?.uz || food.category?.ru || 'Boshqa').trim(),
+    image: food.image || '',
+    available: food.isAvailable !== false,
   };
 }
 
-// Menyudagi taomlardan takrorlanmas kategoriyalar ro'yxatini quradi
 function buildCategories(foods: BackendFood[]): Category[] {
   const seen = new Map<string, Category>();
-  for (const f of foods) {
-    const uz = (f.category?.uz || '').trim();
+
+  for (const food of foods) {
+    const uz = (food.category?.uz || food.category?.ru || '').trim();
     if (!uz || seen.has(uz)) continue;
-    seen.set(uz, { id: uz, label_uz: uz, label_ru: (f.category?.ru || uz).trim() });
+
+    seen.set(uz, {
+      id: uz,
+      label_uz: uz,
+      label_ru: (food.category?.ru || food.category?.uz || uz).trim(),
+    });
   }
+
   return [...seen.values()];
 }
 
-// Demo (backend yo'q/xato) — sayt hech qachon bo'sh qolmasin
-const DEMO: MenuResult = {
-  items: MENU_ITEMS,
-  categories: [
-    { id: 'osh', label_uz: TRANSLATIONS.uz.cat_osh, label_ru: TRANSLATIONS.ru.cat_osh },
-    { id: 'mangal', label_uz: TRANSLATIONS.uz.cat_mangal, label_ru: TRANSLATIONS.ru.cat_mangal },
-    { id: 'salatlar', label_uz: TRANSLATIONS.uz.cat_salatlar, label_ru: TRANSLATIONS.ru.cat_salatlar },
-    { id: 'ichimliklar', label_uz: TRANSLATIONS.uz.cat_ichimliklar, label_ru: TRANSLATIONS.ru.cat_ichimliklar },
-    { id: 'setlar', label_uz: TRANSLATIONS.uz.cat_setlar, label_ru: TRANSLATIONS.ru.cat_setlar },
-  ],
-  source: 'demo',
-};
-
 export async function fetchMenu(): Promise<MenuResult> {
-  if (!API) return DEMO;
-  try {
-    const res = await fetch(`${API}/api/foods`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const foods: BackendFood[] = await res.json();
-    if (!Array.isArray(foods) || foods.length === 0) return DEMO;
-    return { items: foods.map(mapFood), categories: buildCategories(foods), source: 'api' };
-  } catch (e) {
-    console.warn('[menu] backend yuklanmadi, demo ishlatildi:', e);
-    return DEMO;
+  if (!API) {
+    return {
+      items: [],
+      categories: [],
+      source: 'unavailable',
+      error: "VITE_API_URL sozlanmagan.",
+    };
   }
-}
 
-// ── Filiallar (branch) ──
-export interface Branch {
-  id: string;      // slug
-  name: string;
-  address: string;
-  lat: number | null;
-  lng: number | null;
-  isActive: boolean;
-}
-
-export async function fetchBranches(): Promise<Branch[]> {
-  if (!API) return [];
   try {
-    const res = await fetch(`${API}/api/filials`);
-    if (!res.ok) return [];
-    const list = await res.json();
-    return Array.isArray(list) ? list : [];
-  } catch {
-    return [];
-  }
-}
-
-// ── Buyurtma yaratish ──
-export interface CreateOrderPayload {
-  customerName: string;
-  customerPhone: string;
-  items: { foodId: string; title: string; quantity: number }[];
-  orderType: 'delivery' | 'pickup';
-  paymentType: 'payme' | 'click' | 'cash';
-  address?: string;
-  location?: { lat: number; lng: number } | null;
-  filialId?: string;
-  filialName?: string;
-}
-
-export interface CreateOrderResult {
-  ok: boolean;
-  message: string;
-  orderId?: string;
-  paymentUrl?: string;
-}
-
-export async function createOrder(p: CreateOrderPayload): Promise<CreateOrderResult> {
-  if (!API) return { ok: false, message: "Backend sozlanmagan (VITE_API_URL yo'q)." };
-  try {
-    const res = await fetch(`${API}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(p),
+    const response = await fetch(`${API}/api/foods`, {
+      headers: { Accept: 'application/json' },
     });
-    const data = await res.json().catch(() => ({} as { message?: string; order?: { _id?: string }; paymentUrl?: string }));
-    if (!res.ok) return { ok: false, message: data?.message || `Xato (${res.status})` };
-    return { ok: true, message: data?.message || '', orderId: data?.order?._id, paymentUrl: data?.paymentUrl || '' };
-  } catch {
-    return { ok: false, message: 'Tarmoq xatosi. Internet aloqasini tekshiring.' };
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const foods: BackendFood[] = await response.json();
+    if (!Array.isArray(foods) || foods.length === 0) {
+      return {
+        items: [],
+        categories: [],
+        source: 'unavailable',
+        error: 'Menyu bo‘sh yoki noto‘g‘ri formatda qaytdi.',
+      };
+    }
+
+    return {
+      items: foods.map(mapFood),
+      categories: buildCategories(foods),
+      source: 'api',
+    };
+  } catch (error) {
+    console.error('[menu] backend menyusi yuklanmadi:', error);
+    return {
+      items: [],
+      categories: [],
+      source: 'unavailable',
+      error: error instanceof Error ? error.message : 'Noma’lum tarmoq xatosi',
+    };
   }
 }
 
-// ── Mening buyurtmalarim (telefon bo'yicha) ──
-export type OrderStatus = 'new' | 'preparing' | 'on_way' | 'delivered' | 'cancelled';
-
-export interface MyOrder {
-  id: string;
-  date: string;
-  items: string;
-  total: number;
-  status: OrderStatus;
-  type: 'delivery' | 'pickup';
-}
-
-interface BackendOrder {
-  _id?: string;
-  items?: { title?: string; quantity?: number }[];
-  totalPrice?: number;
-  paymentAmount?: number;
-  orderType?: 'delivery' | 'pickup';
-  status?: string;
-  createdAt?: string;
-}
-
-export async function fetchMyOrders(phone: string): Promise<MyOrder[]> {
-  const clean = (phone || '').replace(/[^\d+]/g, '');
-  if (!API || !/^\+?\d{9,15}$/.test(clean)) return [];
-  try {
-    const res = await fetch(`${API}/api/orders/my/${encodeURIComponent(clean)}`);
-    if (!res.ok) return [];
-    const list: BackendOrder[] = await res.json();
-    if (!Array.isArray(list)) return [];
-    return list.map((o) => ({
-      id: o._id ? o._id.slice(-5) : '—',
-      date: o.createdAt
-        ? new Date(o.createdAt).toLocaleString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : '',
-      items: (o.items || []).map((it) => `${it.quantity} × ${it.title}`).join(', '),
-      total: o.paymentAmount || o.totalPrice || 0,
-      status: (o.status as OrderStatus) || 'new',
-      type: o.orderType || 'delivery',
-    }));
-  } catch {
-    return [];
-  }
-}
-
-// ── Joy bron qilish ──
 export interface BookingPayload {
   name: string;
   phone: string;
@@ -196,16 +116,23 @@ export interface BookingPayload {
   note?: string;
 }
 
-export async function createBooking(p: BookingPayload): Promise<{ ok: boolean; message: string }> {
-  if (!API) return { ok: false, message: "Backend sozlanmagan (VITE_API_URL yo'q)." };
+export async function createBooking(payload: BookingPayload): Promise<{ ok: boolean; message: string }> {
+  if (!API) {
+    return { ok: false, message: "Backend sozlanmagan (VITE_API_URL yo‘q)." };
+  }
+
   try {
-    const res = await fetch(`${API}/api/booking`, {
+    const response = await fetch(`${API}/api/booking`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(p),
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
     });
-    const data = await res.json().catch(() => ({} as { message?: string }));
-    if (!res.ok) return { ok: false, message: data?.message || `Xato (${res.status})` };
+
+    const data = await response.json().catch(() => ({} as { message?: string }));
+    if (!response.ok) {
+      return { ok: false, message: data?.message || `Xato (${response.status})` };
+    }
+
     return { ok: true, message: data?.message || 'Arizangiz qabul qilindi.' };
   } catch {
     return { ok: false, message: 'Tarmoq xatosi. Internet aloqasini tekshiring.' };

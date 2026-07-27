@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Star, UtensilsCrossed, Send, ArrowRight, ChevronDown } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { ChevronDown, Phone, RefreshCw, Send, UtensilsCrossed } from 'lucide-react';
 
-import { CategoryType, Language, CartItem, MenuItem } from './types';
-import { TRANSLATIONS, TESTIMONIALS } from './data';
-import { fetchMenu, Category } from './api';
+import { CategoryType, Language, MenuItem } from './types';
+import { TRANSLATIONS } from './data';
+import { Category, fetchMenu } from './api';
+import { openTelegramBot } from './config';
 
-// Component Imports
 import Header from './components/Header';
 import HeroCarousel from './components/HeroCarousel';
 import Marquee from './components/Marquee';
@@ -18,243 +18,150 @@ import WhyUs from './components/WhyUs';
 import About from './components/About';
 import Branches from './components/Branches';
 import DeliveryInfo from './components/DeliveryInfo';
-import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import BottomNav from './components/BottomNav';
-import ExtraModals from './components/ExtraModals';
 import SeoLocalSection from './components/SeoLocalSection';
 
 export default function App() {
-  // --- Core States ---
   const [lang, setLang] = useState<Language>(() => {
     const saved = localStorage.getItem('yalpiz_lang');
-    return (saved === 'uz' || saved === 'ru') ? saved : 'uz';
+    return saved === 'uz' || saved === 'ru' ? saved : 'uz';
   });
-
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('yalpiz_cart');
-    return saved ? JSON.parse(saved) : [];
-  });
-
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [cartOpen, setCartOpen] = useState(false);
-  const [extraModal, setExtraModal] = useState<'orders' | 'profile' | null>(null);
-  const [activeMobileTab, setActiveMobileTab] = useState<'menu' | 'cart' | 'orders' | 'profile' | null>('menu');
-
-  // Menyu — backend'dan (fetchMenu), xato bo'lsa demo fallback
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [menuLoading, setMenuLoading] = useState(true);
+  const [menuUnavailable, setMenuUnavailable] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<MenuItem | null>(null);
   const [expandedCats, setExpandedCats] = useState<string[]>([]);
-  const INITIAL_PER_CAT = 8; // "Barchasi"da har category'dan dastlab shuncha (2 qator)
-  const toggleCat = (id: string) =>
-    setExpandedCats((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
-
+  const INITIAL_PER_CAT = 8;
   const t = TRANSLATIONS[lang];
 
-  // --- Persistence Sync ---
   useEffect(() => {
     localStorage.setItem('yalpiz_lang', lang);
-
     const isUz = lang === 'uz';
     document.documentElement.lang = isUz ? 'uz' : 'ru';
     document.title = isUz
-      ? 'Yalpiz Restaurant Yakkasaroy — Shota Rustaveli 115, Toshkent'
-      : 'Ресторан Yalpiz в Ташкенте — Шота Руставели, 115';
+      ? 'Yalpiz Restaurant — Shota Rustaveli 115, Toshkent'
+      : 'Ресторан Yalpiz — Шота Руставели 115, Ташкент';
 
     const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (description) {
       description.content = isUz
-        ? 'Yalpiz — Toshkent, Shota Rustaveli 115 dagi oilaviy restoran. O‘zbek va turk taomlari, yetkazib berish, olib ketish, stol va banket bron qilish.'
-        : 'Yalpiz — семейный ресторан в Ташкенте по адресу Шота Руставели, 115. Узбекская и турецкая кухня, доставка, самовывоз и бронирование.';
+        ? 'Yalpiz — Shota Rustaveli 115 dagi oilaviy restoran. Menyu bilan tanishing, joy band qiling va taomlarni Telegram bot orqali buyurtma qiling.'
+        : 'Yalpiz — семейный ресторан на Шота Руставели, 115. Смотрите меню, бронируйте стол и заказывайте блюда через Telegram-бот.';
     }
   }, [lang]);
 
-  useEffect(() => {
-    localStorage.setItem('yalpiz_cart', JSON.stringify(cart));
-  }, [cart]);
-
-  // Menyuni backend'dan yuklash (bir marta; xato bo'lsa demo ishlatiladi)
-  useEffect(() => {
-    fetchMenu().then((r) => {
-      setMenuItems(r.items);
-      setCategories(r.categories);
-      setMenuLoading(false);
-    });
+  const loadMenu = useCallback(async () => {
+    setMenuLoading(true);
+    setMenuUnavailable(false);
+    const result = await fetchMenu();
+    setMenuItems(result.items);
+    setCategories(result.categories);
+    setMenuUnavailable(result.source !== 'api');
+    setMenuLoading(false);
   }, []);
 
-  // Adjust bottom navigation status active tab based on view states
   useEffect(() => {
-    if (cartOpen) {
-      setActiveMobileTab('cart');
-    } else if (extraModal === 'orders') {
-      setActiveMobileTab('orders');
-    } else if (extraModal === 'profile') {
-      setActiveMobileTab('profile');
-    } else {
-      setActiveMobileTab('menu');
-    }
-  }, [cartOpen, extraModal]);
+    void loadMenu();
+  }, [loadMenu]);
 
-  // --- Cart Operations ---
-  const handleAddToCart = (item: MenuItem) => {
-    setCart((prevCart) => {
-      const existing = prevCart.find((c) => c.item.id === item.id);
-      if (existing) {
-        return prevCart.map((c) =>
-          c.item.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
-        );
-      }
-      return [...prevCart, { item, quantity: 1 }];
-    });
-  };
-
-  const handleUpdateQuantity = (itemId: string, quantity: number) => {
-    setCart((prevCart) => {
-      if (quantity <= 0) {
-        return prevCart.filter((c) => c.item.id !== itemId);
-      }
-      return prevCart.map((c) =>
-        c.item.id === itemId ? { ...c, quantity } : c
-      );
-    });
-  };
-
-  const handleRemoveItem = (itemId: string) => {
-    setCart((prevCart) => prevCart.filter((c) => c.item.id !== itemId));
-  };
-
-  const handleClearCart = () => {
-    setCart([]);
-  };
-
-  const cartCount = cart.reduce((acc, curr) => acc + curr.quantity, 0);
-
-  // --- Filtering & Search Logic ---
-  const filteredMenuItems = useMemo(() => {
-    return menuItems.filter((item) => {
-      // Category match
-      const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-
-      // Case-insensitive query matches
-      const query = searchQuery.toLowerCase().trim();
-      if (!query) return matchesCategory;
-
-      const nameUz = item.name_uz.toLowerCase();
-      const nameRu = item.name_ru.toLowerCase();
-      const descUz = item.desc_uz.toLowerCase();
-      const descRu = item.desc_ru.toLowerCase();
-
-      const matchesSearch =
-        nameUz.includes(query) ||
-        nameRu.includes(query) ||
-        descUz.includes(query) ||
-        descRu.includes(query);
-
-      return matchesCategory && matchesSearch;
-    });
-  }, [menuItems, selectedCategory, searchQuery]);
-
-  const renderCard = (item: MenuItem) => {
-    const cartEntry = cart.find((c) => c.item.id === item.id);
-    const qty = cartEntry ? cartEntry.quantity : 0;
-    return (
-      <ProductCard
-        key={item.id}
-        item={item}
-        lang={lang}
-        quantityInCart={qty}
-        onAddToCart={() => handleAddToCart(item)}
-        onUpdateQuantity={(newQty) => handleUpdateQuantity(item.id, newQty)}
-        onSelect={() => setSelectedProduct(item)}
-      />
+  const toggleCat = (id: string) => {
+    setExpandedCats((current) =>
+      current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
     );
   };
 
-  // Navigate & scroll with offset handler
-  const handleNavWithOffset = (href: string) => {
+  const filteredMenuItems = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    return menuItems.filter((item) => {
+      const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+      if (!query) return matchesCategory;
+
+      return (
+        item.name_uz.toLowerCase().includes(query) ||
+        item.name_ru.toLowerCase().includes(query) ||
+        item.desc_uz.toLowerCase().includes(query) ||
+        item.desc_ru.toLowerCase().includes(query)
+      ) && matchesCategory;
+    });
+  }, [menuItems, selectedCategory, searchQuery]);
+
+  const handleNavWithOffset = useCallback((href: string) => {
     const element = document.querySelector(href);
-    if (element) {
-      const offset = 80;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
+    if (!element) return;
+    const headerHeight = document.getElementById('main-header')?.offsetHeight ?? 80;
+    const top = window.scrollY + element.getBoundingClientRect().top - headerHeight - 12;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    window.history.replaceState(null, '', href);
+  }, []);
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
-    }
-  };
+  const handleBotOrder = useCallback(() => {
+    openTelegramBot();
+  }, []);
 
-  // Click handler from Promotion cards
-  const handlePromoClick = (categoryLink: CategoryType) => {
-    setSelectedCategory(categoryLink);
-    handleNavWithOffset('#menu');
-  };
+  const renderCard = (item: MenuItem) => (
+    <ProductCard
+      key={item.id}
+      item={item}
+      lang={lang}
+      onSelect={() => setSelectedProduct(item)}
+      onBotOrder={handleBotOrder}
+    />
+  );
 
   return (
     <div className="min-h-screen bg-[#f7f5f0] text-brand-dark flex flex-col font-sans overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark">
-      
-      {/* 1. Header Navigation */}
       <Header
         lang={lang}
         setLang={setLang}
-        cartCount={cartCount}
-        onCartToggle={() => setCartOpen(!cartOpen)}
-        onOrderClick={() => setCartOpen(true)}
-        onOrdersClick={() => setExtraModal('orders')}
-        onProfileClick={() => setExtraModal('profile')}
+        onBookingClick={() => handleNavWithOffset('#booking')}
+        onBotOrder={handleBotOrder}
       />
 
-      {/* 2. Hero Header */}
       <HeroCarousel
         lang={lang}
         onExploreClick={() => handleNavWithOffset('#menu')}
-        onOrderClick={() => setCartOpen(true)}
+        onBookingClick={() => handleNavWithOffset('#booking')}
+        onBotOrder={handleBotOrder}
       />
 
-      {/* 3. running looping benefits strip */}
       <Marquee lang={lang} />
 
-      {/* 4. Interactive Menu Grid Block */}
       <main id="menu" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12 flex-grow min-w-0">
-        
-        {/* Section title */}
-        <div className="text-center max-w-xl mx-auto space-y-3">
+        <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 rounded-full text-brand-primary font-bold text-xs uppercase tracking-widest">
             <UtensilsCrossed className="w-3.5 h-3.5" />
-            <span>{lang === 'uz' ? 'Yalpiz Shoxona Oshxonasi' : 'Меню ресторана'}</span>
+            <span>{lang === 'uz' ? 'Yalpiz menyusi' : 'Меню Yalpiz'}</span>
           </div>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-brand-dark">
-            {lang === 'uz' ? 'Bizning Milliy Menyu' : 'Наше Национальное Меню'}
+            {lang === 'uz' ? 'Menyu bilan tanishing' : 'Познакомьтесь с меню'}
           </h2>
           <p className="font-sans text-brand-muted text-xs sm:text-sm leading-normal">
             {lang === 'uz'
-              ? 'Eng sara o‘zbek tansiq taomlari, sersuv kaboblar va tansiq salatlar'
-              : 'Лучшие узбекские национальные блюда, сочные шашлыки и свежие салаты'}
+              ? 'Menyu va narxlarni saytda ko‘ring. Taom buyurtmasi Telegram bot orqali qabul qilinadi.'
+              : 'Смотрите меню и цены на сайте. Заказы на блюда принимаются через Telegram-бот.'}
           </p>
         </div>
 
-        {/* Quick horizontal filter chips & Search bar */}
-        <CategoryNav
-          lang={lang}
-          categories={categories}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
+        {!menuUnavailable && !menuLoading && (
+          <CategoryNav
+            lang={lang}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+        )}
 
-        {/* Dynamic Cards Grid */}
         <div className="pt-4">
           {menuLoading ? (
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-3xl border border-brand-primary/5 overflow-hidden animate-pulse">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8" aria-label={lang === 'uz' ? 'Menyu yuklanmoqda' : 'Загрузка меню'}>
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div key={index} className="bg-white rounded-3xl border border-brand-primary/5 overflow-hidden animate-pulse">
                   <div className="aspect-4/3 bg-brand-primary/5" />
                   <div className="p-5 sm:p-6 space-y-3">
                     <div className="h-4 bg-brand-primary/5 rounded w-3/4" />
@@ -264,226 +171,142 @@ export default function App() {
                 </div>
               ))}
             </div>
+          ) : menuUnavailable ? (
+            <div className="max-w-xl mx-auto bg-white border border-amber-200 rounded-3xl p-7 sm:p-9 text-center shadow-sm space-y-5">
+              <div className="w-14 h-14 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center mx-auto">
+                <UtensilsCrossed className="w-6 h-6" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-serif text-2xl font-bold text-brand-dark">
+                  {lang === 'uz' ? 'Menyu vaqtincha mavjud emas' : 'Меню временно недоступно'}
+                </h3>
+                <p className="text-brand-muted text-sm leading-relaxed">
+                  {lang === 'uz'
+                    ? 'Soxta yoki eskirgan menyu ko‘rsatilmaydi. Buyurtma uchun Telegram botni oching yoki restoranga qo‘ng‘iroq qiling.'
+                    : 'Мы не показываем устаревшее демонстрационное меню. Откройте Telegram-бот или позвоните в ресторан.'}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  type="button"
+                  onClick={handleBotOrder}
+                  className="px-5 py-3 bg-brand-primary text-white font-bold rounded-xl inline-flex items-center justify-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  {lang === 'uz' ? 'Telegram botni ochish' : 'Открыть Telegram-бот'}
+                </button>
+                <a
+                  href="tel:+998951939898"
+                  className="px-5 py-3 bg-brand-neutral border border-brand-primary/10 text-brand-primary font-bold rounded-xl inline-flex items-center justify-center gap-2"
+                >
+                  <Phone className="w-4 h-4" />
+                  +998 95 193 98 98
+                </a>
+                <button
+                  type="button"
+                  onClick={() => void loadMenu()}
+                  className="px-5 py-3 border border-brand-primary/10 text-brand-dark font-bold rounded-xl inline-flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  {lang === 'uz' ? 'Qayta urinish' : 'Повторить'}
+                </button>
+              </div>
+            </div>
           ) : selectedCategory === 'all' && !searchQuery.trim() ? (
-            /* Category bo'yicha guruhlangan — har biridan 2 qator + "Ko'proq" */
             <div className="space-y-14">
-              {categories.map((cat) => {
-                const catItems = menuItems.filter((it) => it.category === cat.id);
-                if (!catItems.length) return null;
-                const expanded = expandedCats.includes(cat.id);
-                const visible = expanded ? catItems : catItems.slice(0, INITIAL_PER_CAT);
+              {categories.map((category) => {
+                const categoryItems = menuItems.filter((item) => item.category === category.id);
+                if (!categoryItems.length) return null;
+                const expanded = expandedCats.includes(category.id);
+                const visibleItems = expanded ? categoryItems : categoryItems.slice(0, INITIAL_PER_CAT);
+
                 return (
-                  <div key={cat.id}>
+                  <section key={category.id} aria-labelledby={`category-${category.id}`}>
                     <div className="flex items-end justify-between mb-5 gap-4">
-                      <h3 className="font-serif text-2xl sm:text-3xl font-bold text-brand-dark">
-                        {lang === 'uz' ? cat.label_uz : cat.label_ru}
+                      <h3 id={`category-${category.id}`} className="font-serif text-2xl sm:text-3xl font-bold text-brand-dark">
+                        {lang === 'uz' ? category.label_uz : category.label_ru}
                       </h3>
                       <span className="text-xs text-brand-muted whitespace-nowrap">
-                        {catItems.length} {lang === 'uz' ? 'ta taom' : 'блюд'}
+                        {categoryItems.length} {lang === 'uz' ? 'ta taom' : 'блюд'}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-                      {visible.map(renderCard)}
+                      {visibleItems.map(renderCard)}
                     </div>
-                    {catItems.length > INITIAL_PER_CAT && (
+                    {categoryItems.length > INITIAL_PER_CAT && (
                       <div className="text-center mt-6">
                         <button
-                          onClick={() => toggleCat(cat.id)}
-                          className="px-6 py-2.5 bg-white border-2 border-brand-primary/15 hover:border-brand-primary/40 text-brand-primary text-sm font-bold rounded-xl transition-all cursor-pointer inline-flex items-center gap-2"
+                          type="button"
+                          onClick={() => toggleCat(category.id)}
+                          className="px-6 py-2.5 bg-white border-2 border-brand-primary/15 hover:border-brand-primary/40 text-brand-primary text-sm font-bold rounded-xl transition-all inline-flex items-center gap-2"
                         >
                           {expanded
-                            ? (lang === 'uz' ? "Kamroq ko'rsatish" : 'Показать меньше')
-                            : (lang === 'uz' ? `Ko'proq (${catItems.length - INITIAL_PER_CAT})` : `Ещё (${catItems.length - INITIAL_PER_CAT})`)}
+                            ? lang === 'uz' ? 'Kamroq ko‘rsatish' : 'Показать меньше'
+                            : lang === 'uz' ? `Ko‘proq (${categoryItems.length - INITIAL_PER_CAT})` : `Ещё (${categoryItems.length - INITIAL_PER_CAT})`}
                           <ChevronDown className={`w-4 h-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
                         </button>
                       </div>
                     )}
-                  </div>
+                  </section>
                 );
               })}
             </div>
           ) : (
-          <AnimatePresence mode="popLayout">
-            {filteredMenuItems.length > 0 ? (
-              <motion.div
-                layout
-                className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8"
-              >
-                {filteredMenuItems.map(renderCard)}
-              </motion.div>
-            ) : (
-              /* No search matches fallbacks */
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="bg-white rounded-3xl border border-brand-primary/5 p-12 text-center max-w-md mx-auto space-y-4"
-              >
-                <div className="w-16 h-16 bg-brand-primary/5 text-brand-primary rounded-full flex items-center justify-center mx-auto text-lg font-bold">
-                  !
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-serif text-lg font-bold text-brand-dark">
-                    {lang === 'uz' ? 'Hech narsa topilmadi' : 'Ничего не найдено'}
-                  </h4>
-                  <p className="font-sans text-brand-muted text-xs sm:text-sm">
-                    {lang === 'uz'
-                      ? 'Iltimos, boshqa kalit so‘zlar yordamida qidirib ko‘ring.'
-                      : 'Попробуйте изменить запрос или сбросить фильтры поиска.'}
-                  </p>
-                </div>
-                <button
-                  id="reset-filters-btn"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSelectedCategory('all');
-                  }}
-                  className="px-5 py-2.5 bg-brand-primary text-white text-xs font-semibold rounded-xl cursor-pointer"
+            <AnimatePresence mode="popLayout">
+              {filteredMenuItems.length > 0 ? (
+                <motion.div layout className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
+                  {filteredMenuItems.map(renderCard)}
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-white rounded-3xl border border-brand-primary/5 p-12 text-center max-w-md mx-auto space-y-4"
                 >
-                  {lang === 'uz' ? 'Filtrlarni tiklash' : 'Сбросить фильтры'}
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <div className="w-16 h-16 bg-brand-primary/5 text-brand-primary rounded-full flex items-center justify-center mx-auto text-lg font-bold">!</div>
+                  <div className="space-y-1">
+                    <h4 className="font-serif text-lg font-bold text-brand-dark">
+                      {lang === 'uz' ? 'Hech narsa topilmadi' : 'Ничего не найдено'}
+                    </h4>
+                    <p className="font-sans text-brand-muted text-xs sm:text-sm">
+                      {lang === 'uz' ? 'Boshqa kalit so‘z bilan qidirib ko‘ring.' : 'Попробуйте изменить запрос.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCategory('all');
+                    }}
+                    className="px-5 py-2.5 bg-brand-primary text-white text-xs font-semibold rounded-xl"
+                  >
+                    {lang === 'uz' ? 'Filtrlarni tiklash' : 'Сбросить фильтры'}
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           )}
         </div>
-
       </main>
 
-      {/* 5. Featured / Promo cards Banner block */}
       <BookingSection lang={lang} />
-
-      {/* 6. Why Choose Us values list */}
       <WhyUs lang={lang} />
-
-      {/* 7. Culinary brand Story / About section */}
       <About lang={lang} />
 
-      {/* 8. Testimonials block */}
-      <section className="py-16 bg-white border-t border-brand-primary/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <div className="text-center max-w-xl mx-auto space-y-3 mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 rounded-full text-brand-primary font-bold text-xs uppercase tracking-widest">
-              <Sparkles className="w-3.5 h-3.5 fill-current text-brand-accent" />
-              <span>{lang === 'uz' ? 'Mehmondo‘stlik bahosi' : 'Отзывы гостей'}</span>
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-brand-dark">
-              {t.reviewsTitle}
-            </h2>
-            <p className="font-sans text-brand-muted text-xs sm:text-sm">
-              {t.reviewsSub}
-            </p>
-          </div>
-
-          {/* Testimonial grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {TESTIMONIALS.map((review) => {
-              const comment = lang === 'uz' ? review.comment_uz : review.comment_ru;
-              const role = lang === 'uz' ? review.role_uz : review.role_ru;
-              return (
-                <div
-                  key={review.id}
-                  id={`review-${review.id}`}
-                  className="bg-brand-neutral/40 border border-brand-primary/5 p-6 sm:p-8 rounded-[28px] space-y-4 hover:border-brand-primary/10 transition-all duration-300 flex flex-col justify-between"
-                >
-                  <p className="font-sans text-brand-dark/90 text-sm italic leading-relaxed">
-                    &ldquo;{comment}&rdquo;
-                  </p>
-
-                  <div className="flex items-center gap-3.5 border-t border-brand-primary/5 pt-4">
-                    <img
-                      src={review.avatar}
-                      alt={review.name}
-                      className="w-11 h-11 rounded-full object-cover"
-                    />
-                    <div>
-                      <h4 className="font-sans font-bold text-brand-dark text-xs sm:text-sm">
-                        {review.name}
-                      </h4>
-                      <span className="font-sans text-[10px] sm:text-xs text-brand-muted block mt-0.5">
-                        {role}
-                      </span>
-                    </div>
-
-                    {/* Star Rating */}
-                    <div className="ml-auto flex gap-0.5 text-amber-500">
-                      {[...Array(review.rating)].map((_, idx) => (
-                        <Star key={idx} className="w-3.5 h-3.5 fill-current" />
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              );
-            })}
-          </div>
-
-        </div>
-      </section>
-
-      {/* 9. physical Locations locator cards + embedded Maps */}
       <Branches lang={lang} />
-
-      {/* 10. Local SEO information and FAQ */}
       <SeoLocalSection lang={lang} />
+      <DeliveryInfo lang={lang} onBotOrder={handleBotOrder} />
+      <Footer lang={lang} onNavClick={handleNavWithOffset} onBotOrder={handleBotOrder} />
 
-      {/* 11. Delivery / Payment instructions */}
-      <DeliveryInfo lang={lang} />
-
-      {/* 12. Footer details and Telegram connections */}
-      <Footer lang={lang} onNavClick={handleNavWithOffset} />
-
-      {/* 12. Client Checkout sliding Drawer */}
-      <CartDrawer
-        isOpen={cartOpen}
-        onClose={() => setCartOpen(false)}
-        lang={lang}
-        cart={cart}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
-      />
-
-      {/* Taom tafsilotlari (popup) */}
       <ProductDetail
         item={selectedProduct}
         lang={lang}
-        quantityInCart={selectedProduct ? (cart.find((c) => c.item.id === selectedProduct.id)?.quantity || 0) : 0}
-        onAddToCart={() => selectedProduct && handleAddToCart(selectedProduct)}
-        onUpdateQuantity={(newQty) => selectedProduct && handleUpdateQuantity(selectedProduct.id, newQty)}
+        onBotOrder={handleBotOrder}
         onClose={() => setSelectedProduct(null)}
       />
 
-      {/* 13. Mobile popups: History and profile sheets */}
-      <ExtraModals
-        lang={lang}
-        activeModal={extraModal}
-        onClose={() => setExtraModal(null)}
-      />
-
-      {/* 14. Responsive bottom sticky PWA navigation bar (mobile only) */}
-      <BottomNav
-        lang={lang}
-        cartCount={cartCount}
-        onCartToggle={() => setCartOpen(true)}
-        onTabClick={(tab) => {
-          if (tab === 'menu') {
-            setExtraModal(null);
-            setCartOpen(false);
-          } else if (tab === 'cart') {
-            setExtraModal(null);
-          } else if (tab === 'orders') {
-            setExtraModal('orders');
-            setCartOpen(false);
-          } else if (tab === 'profile') {
-            setExtraModal('profile');
-            setCartOpen(false);
-          }
-        }}
-        activeTab={activeMobileTab}
-      />
-
+      <BottomNav lang={lang} onNavigate={handleNavWithOffset} onBotOrder={handleBotOrder} />
     </div>
   );
 }

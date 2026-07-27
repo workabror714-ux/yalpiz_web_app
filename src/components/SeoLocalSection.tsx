@@ -27,7 +27,7 @@ export default function SeoLocalSection({ lang }: SeoLocalSectionProps) {
         },
         {
           question: 'Yetkazib berish va olib ketish xizmati bormi?',
-          answer: 'Ha. Sayt orqali yetkazib berish yoki restorandan olib ketish uchun buyurtma berish mumkin.',
+          answer: 'Ha. Yetkazib berish yoki olib ketish buyurtmasi Telegram bot orqali beriladi.',
         },
         {
           question: 'Stol yoki tadbir uchun joy bron qilish mumkinmi?',
@@ -49,7 +49,7 @@ export default function SeoLocalSection({ lang }: SeoLocalSectionProps) {
         },
         {
           question: 'Есть ли доставка и самовывоз?',
-          answer: 'Да. На сайте можно оформить доставку или заказать блюда навынос.',
+          answer: 'Да. Заказ на доставку или самовывоз оформляется через Telegram-бот.',
         },
         {
           question: 'Можно ли забронировать стол или банкет?',
@@ -76,8 +76,8 @@ export default function SeoLocalSection({ lang }: SeoLocalSectionProps) {
           </h2>
           <p className="font-sans text-brand-muted text-sm sm:text-base leading-relaxed">
             {isUz
-              ? 'Yalpiz — Toshkentdagi oilaviy restoran. Menyuda o‘zbek milliy va turk taomlari, go‘shtli taomlar, salatlar, sho‘rvalar va ichimliklar mavjud. Sayt orqali yetkazib berish yoki olib ketish uchun buyurtma berishingiz, stol va tadbirlar uchun joy bron qilishingiz mumkin.'
-              : 'Yalpiz — семейный ресторан в Ташкенте. В меню представлены блюда узбекской и турецкой кухни, мясные блюда, салаты, супы и напитки. На сайте можно оформить доставку или самовывоз, а также забронировать стол или мероприятие.'}
+              ? 'Yalpiz — Toshkentdagi oilaviy restoran. Menyuda o‘zbek milliy va turk taomlari, go‘shtli taomlar, salatlar, sho‘rvalar va ichimliklar mavjud. Saytda menyu bilan tanishishingiz va stol yoki tadbir uchun joy band qilishingiz mumkin. Taom buyurtmalari Telegram bot orqali qabul qilinadi.'
+              : 'Yalpiz — семейный ресторан в Ташкенте. В меню представлены блюда узбекской и турецкой кухни, мясные блюда, салаты, супы и напитки. На сайте можно посмотреть меню и забронировать стол или мероприятие. Заказы на блюда принимаются через Telegram-бот.'}
           </p>
         </div>
 

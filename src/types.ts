@@ -19,10 +19,6 @@ export interface MenuItem {
   prepTime_ru?: string;
 }
 
-export interface CartItem {
-  item: MenuItem;
-  quantity: number;
-}
 
 export interface Branch {
   id: string;
@@ -36,38 +32,4 @@ export interface Branch {
   phoneRaw: string;
   mapEmbedUrl: string;
   mapUrl: string;
-}
-
-export interface Promo {
-  id: string;
-  title_uz: string;
-  title_ru: string;
-  desc_uz: string;
-  desc_ru: string;
-  badge_uz: string;
-  badge_ru: string;
-  image: string;
-  price?: number;
-  categoryLink: CategoryType;
-}
-
-export interface Testimonial {
-  id: string;
-  name: string;
-  role_uz: string;
-  role_ru: string;
-  comment_uz: string;
-  comment_ru: string;
-  rating: number;
-  avatar: string;
-}
-
-export interface OrderDetails {
-  name: string;
-  phone: string;
-  type: 'delivery' | 'pickup';
-  address: string;
-  branchId: string;
-  payment: 'payme' | 'click' | 'cash';
-  comment: string;
 }

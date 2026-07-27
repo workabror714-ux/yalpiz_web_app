@@ -1,141 +1,126 @@
-import { motion } from 'motion/react';
-import { ShoppingBasket, Truck, Sparkles, CreditCard, Wallet } from 'lucide-react';
+import { Bike, Bot, CheckCircle2, MapPin, Send, ShoppingBag } from 'lucide-react';
 import { Language } from '../types';
-import { TRANSLATIONS } from '../data';
 
 interface DeliveryInfoProps {
   lang: Language;
+  onBotOrder: () => void;
 }
 
-export default function DeliveryInfo({ lang }: DeliveryInfoProps) {
-  const t = TRANSLATIONS[lang];
+export default function DeliveryInfo({ lang, onBotOrder }: DeliveryInfoProps) {
+  const isUz = lang === 'uz';
 
   const steps = [
     {
-      step: '01',
-      title: t.step1Title,
-      desc: t.step1Desc,
-      icon: ShoppingBasket,
-      bg: 'bg-emerald-50 text-brand-primary',
+      icon: Bot,
+      titleUz: 'Telegram botni oching',
+      titleRu: 'Откройте Telegram-бот',
+      textUz: 'Menyu va mavjud taomlar botda ko‘rsatiladi.',
+      textRu: 'Меню и доступные блюда отображаются в боте.',
     },
     {
-      step: '02',
-      title: t.step2Title,
-      desc: t.step2Desc,
-      icon: Truck,
-      bg: 'bg-amber-50 text-amber-600',
+      icon: ShoppingBag,
+      titleUz: 'Buyurtmani yig‘ing',
+      titleRu: 'Соберите заказ',
+      textUz: 'Yetkazib berish yoki olib ketishni tanlang.',
+      textRu: 'Выберите доставку или самовывоз.',
     },
     {
-      step: '03',
-      title: t.step3Title,
-      desc: t.step3Desc,
-      icon: Sparkles,
-      bg: 'bg-sky-50 text-sky-600',
+      icon: CheckCircle2,
+      titleUz: 'Tasdiqlang',
+      titleRu: 'Подтвердите',
+      textUz: 'Botdagi ko‘rsatmalar orqali buyurtmani yakunlang.',
+      textRu: 'Завершите заказ по подсказкам в боте.',
     },
   ];
 
   return (
-    <section id="delivery" className="py-20 bg-white">
+    <section id="delivery" className="py-16 bg-brand-neutral/50 border-y border-brand-primary/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header Block */}
-        <div className="text-center max-w-2xl mx-auto space-y-3 mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 rounded-full text-brand-primary font-bold text-xs uppercase tracking-widest">
-            <Truck className="w-3.5 h-3.5" />
-            <span>{lang === 'uz' ? 'Xizmatlarimiz' : 'Сервис'}</span>
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-brand-dark">
-            {t.deliveryTitle}
-          </h2>
-          <p className="font-sans text-brand-muted text-sm sm:text-base">
-            {t.deliverySub}
-          </p>
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-14 items-center">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-primary/5 rounded-full text-brand-primary font-bold text-xs uppercase tracking-widest">
+              <Send className="w-3.5 h-3.5" />
+              <span>{isUz ? 'Buyurtma Telegram botda' : 'Заказ в Telegram-боте'}</span>
+            </div>
 
-        {/* 3 Step Ordering Process */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          
-          {/* Connector Line (Desktop) */}
-          <div className="hidden md:block absolute top-1/3 left-16 right-16 h-0.5 bg-brand-primary/10 -z-10" />
-
-          {steps.map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="bg-white p-8 rounded-[32px] border border-brand-primary/5 text-center flex flex-col items-center space-y-4 shadow-xs relative"
-              >
-                {/* Step number badge */}
-                <span className="absolute top-4 right-6 font-mono text-xs font-bold text-brand-primary/30 uppercase tracking-widest">
-                  STEP {item.step}
-                </span>
-
-                {/* Icon Wrapper */}
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${item.bg} shadow-xs`}>
-                  <Icon className="w-7 h-7" />
-                </div>
-
-                <h3 className="font-sans text-lg font-bold text-brand-dark">
-                  {item.title}
-                </h3>
-                
-                <p className="font-sans text-brand-muted text-xs sm:text-sm leading-relaxed max-w-xs">
-                  {item.desc}
-                </p>
-
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Payment Methods Banner */}
-        <div className="mt-16 bg-brand-neutral/60 border border-brand-primary/10 rounded-[32px] p-6 sm:p-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <div className="lg:col-span-5 space-y-3">
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-brand-dark flex items-center gap-2">
-                <CreditCard className="w-6 h-6 text-brand-primary" />
-                {t.paymentTitle}
-              </h3>
-              <p className="font-sans text-brand-muted text-xs sm:text-sm leading-relaxed">
-                {t.paymentDesc}
+            <div className="space-y-3">
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-brand-dark">
+                {isUz ? 'Taom buyurtmasi — bot orqali' : 'Заказ блюд — через бот'}
+              </h2>
+              <p className="font-sans text-brand-muted text-sm sm:text-base leading-relaxed max-w-2xl">
+                {isUz
+                  ? 'Saytimiz restoran haqida ma’lumot, menyu ko‘rish va joy band qilish uchun xizmat qiladi. Taom buyurtmalari esa xavfsiz va qulay tarzda Telegram botimiz orqali qabul qilinadi.'
+                  : 'На сайте можно посмотреть информацию о ресторане, меню и забронировать стол. Заказы на блюда принимаются через наш Telegram-бот.'}
               </p>
             </div>
 
-            <div className="lg:col-span-7 grid grid-cols-3 gap-3 sm:gap-4">
-              
-              {/* Payme Card */}
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-brand-primary/5 flex flex-col items-center justify-center text-center shadow-xs group hover:border-brand-primary/20 transition-all duration-300">
-                <img src="/payme.png" alt="Payme" className="h-6 sm:h-7 w-auto mb-2" />
-                <span className="font-mono text-[9px] text-[#00c2e8] mt-1 font-semibold tracking-wider uppercase">{lang === 'uz' ? 'Onlayn' : 'Онлайн'}</span>
-              </div>
-
-              {/* Click Card */}
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-brand-primary/5 flex flex-col items-center justify-center text-center shadow-xs group hover:border-brand-primary/20 transition-all duration-300">
-                <img src="/click.png" alt="Click" className="h-6 sm:h-7 w-auto mb-2" />
-                <span className="font-mono text-[9px] text-[#0052cc] mt-1 font-semibold tracking-wider uppercase">{lang === 'uz' ? 'Onlayn' : 'Онлайн'}</span>
-              </div>
-
-              {/* Cash Card */}
-              <div className="bg-white p-4 sm:p-5 rounded-2xl border border-brand-primary/5 flex flex-col items-center justify-center text-center shadow-xs group hover:border-brand-primary/20 transition-all duration-300">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 mb-2">
-                  <Wallet className="w-5 h-5" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {steps.map((step) => (
+                <div key={step.titleUz} className="bg-white rounded-2xl border border-brand-primary/5 p-4 shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center mb-3">
+                    <step.icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-bold text-brand-dark text-sm">{isUz ? step.titleUz : step.titleRu}</h3>
+                  <p className="text-brand-muted text-xs leading-relaxed mt-1">{isUz ? step.textUz : step.textRu}</p>
                 </div>
-                <span className="font-sans font-bold text-brand-dark text-xs sm:text-sm">
-                  {lang === 'uz' ? 'Naqd / Karta' : 'Наличные'}
-                </span>
-                <span className="font-mono text-[9px] text-emerald-600 mt-1 font-semibold tracking-wider uppercase">{lang === 'uz' ? 'Qabulda' : 'При получении'}</span>
-              </div>
-
+              ))}
             </div>
 
+            <button
+              type="button"
+              onClick={onBotOrder}
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-brand-primary hover:bg-brand-dark text-white font-bold rounded-2xl transition-colors shadow-md"
+            >
+              <Send className="w-5 h-5" />
+              {isUz ? 'Telegram botda buyurtma berish' : 'Заказать в Telegram-боте'}
+            </button>
+          </div>
+
+          <div className="bg-brand-dark text-white rounded-[28px] p-6 sm:p-8 shadow-xl relative overflow-hidden">
+            <div className="absolute -right-16 -top-16 w-48 h-48 bg-brand-accent/10 rounded-full blur-2xl" />
+            <div className="relative space-y-6">
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold">
+                {isUz ? 'Yetkazib berish va olib ketish' : 'Доставка и самовывоз'}
+              </h3>
+
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 text-brand-accent flex items-center justify-center flex-shrink-0">
+                    <Bike className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm">{isUz ? 'Yetkazib berish' : 'Доставка'}</h4>
+                    <p className="text-white/70 text-xs mt-1 leading-relaxed">
+                      {isUz
+                        ? 'Manzil va yetkazib berish tafsilotlari buyurtma vaqtida botda kiritiladi.'
+                        : 'Адрес и детали доставки указываются в боте при оформлении заказа.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 text-brand-accent flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm">{isUz ? 'Olib ketish' : 'Самовывоз'}</h4>
+                    <p className="text-white/70 text-xs mt-1 leading-relaxed">
+                      {isUz
+                        ? 'Buyurtmani Shota Rustaveli ko‘chasi, 115-uydagi Yalpiz restoranidan olib ketishingiz mumkin.'
+                        : 'Заказ можно забрать в ресторане Yalpiz по адресу: ул. Шота Руставели, 115.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-5 border-t border-white/10 text-xs text-white/60">
+                {isUz
+                  ? 'Buyurtma narxi, mavjud to‘lov usuli va yetkazib berish shartlari botda yakuniy tasdiqlashdan oldin ko‘rsatiladi.'
+                  : 'Стоимость заказа, доступный способ оплаты и условия доставки показываются в боте до подтверждения.'}
+              </div>
+            </div>
           </div>
         </div>
-
       </div>
     </section>
   );
