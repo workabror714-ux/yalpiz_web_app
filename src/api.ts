@@ -137,6 +137,55 @@ export async function calculateDeliveryPrice(
   }
 }
 
+export interface ReverseGeocodeResult {
+  ok: boolean;
+  address: string;
+  message: string;
+  attribution?: string;
+}
+
+export async function reverseGeocode(
+  location: { lat: number; lng: number },
+  lang: 'uz' | 'ru',
+): Promise<ReverseGeocodeResult> {
+  if (!API) {
+    return { ok: false, address: '', message: 'Backend sozlanmagan.' };
+  }
+
+  try {
+    const query = new URLSearchParams({
+      lat: String(location.lat),
+      lng: String(location.lng),
+      lang,
+    });
+    const response = await fetch(`${API}/api/geocode/reverse?${query.toString()}`, {
+      headers: { Accept: 'application/json' },
+    });
+    const data = await response.json().catch(() => ({} as Record<string, unknown>));
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        address: '',
+        message: String(data?.message || `Xato (${response.status})`),
+      };
+    }
+
+    return {
+      ok: true,
+      address: String(data?.address || '').trim(),
+      message: '',
+      attribution: String(data?.attribution || '© OpenStreetMap contributors'),
+    };
+  } catch {
+    return {
+      ok: false,
+      address: '',
+      message: 'Manzilni avtomatik aniqlab bo‘lmadi.',
+    };
+  }
+}
+
 export interface CreateOrderPayload {
   customerName: string;
   customerPhone: string;

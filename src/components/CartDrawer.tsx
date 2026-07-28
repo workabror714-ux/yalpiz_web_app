@@ -16,6 +16,7 @@ import {
   calculateDeliveryPrice,
   createOrder,
   fetchBranches,
+  reverseGeocode,
 } from '../api';
 import { BRANCHES } from '../data';
 import { thumb, imgFallback } from '../img';
@@ -152,11 +153,36 @@ export default function CartDrawer({
     }
 
     setLocating(true);
+    setErrors((current) => ({ ...current, location: '', address: '' }));
+
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+      async (position) => {
+        const coordinates = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        setLocation(coordinates);
+
+        const result = await reverseGeocode(coordinates, lang);
         setLocating(false);
-        setErrors((current) => ({ ...current, location: '' }));
+
+        if (result.ok && result.address) {
+          setDetails((current) => ({ ...current, address: result.address }));
+          localStorage.setItem('yalpiz_user_address', result.address);
+          setErrors((current) => ({ ...current, location: '', address: '' }));
+          return;
+        }
+
+        setErrors((current) => ({
+          ...current,
+          location: '',
+          address: result.message || (
+            isUz
+              ? 'Joylashuv topildi, lekin manzilni avtomatik yozib bo‘lmadi. Qo‘lda kiriting.'
+              : 'Местоположение найдено, но адрес не удалось заполнить автоматически. Введите его вручную.'
+          ),
+        }));
       },
       () => {
         setLocating(false);
@@ -167,7 +193,7 @@ export default function CartDrawer({
             : 'Не удалось определить местоположение. Разрешите доступ.',
         }));
       },
-      { enableHighAccuracy: true, timeout: 12000 },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 },
     );
   };
 
@@ -423,6 +449,14 @@ export default function CartDrawer({
                             : isUz ? 'Joylashuvimni aniqlash' : 'Определить местоположение'}
                       </button>
                       {errors.location && <span className="text-red-600 text-xs block">{errors.location}</span>}
+                      <a
+                        href="https://www.openstreetmap.org/copyright"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block text-[10px] text-brand-muted text-center hover:underline"
+                      >
+                        {isUz ? 'Manzil ma’lumoti © OpenStreetMap contributors' : 'Данные адреса © OpenStreetMap contributors'}
+                      </a>
                     </div>
 
                     <div className="space-y-2">
