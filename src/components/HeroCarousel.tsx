@@ -9,7 +9,7 @@ interface HeroCarouselProps {
   lang: Language;
   onExploreClick: () => void;
   onBookingClick: () => void;
-  onBotOrder: () => void;
+  onOrderClick: () => void;
 }
 
 interface Slide {
@@ -20,7 +20,7 @@ interface Slide {
   title_ru: string;
   sub_uz: string;
   sub_ru: string;
-  cta: 'bot' | 'menu' | 'booking';
+  cta: 'order' | 'menu' | 'booking';
 }
 
 const SLIDES: Slide[] = [
@@ -38,11 +38,11 @@ const SLIDES: Slide[] = [
     image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&q=80',
     badge_uz: 'Menyu va buyurtma',
     badge_ru: 'Меню и заказ',
-    title_uz: 'Taomlarni ko‘ring, botda buyurtma bering',
-    title_ru: 'Смотрите меню и заказывайте в боте',
-    sub_uz: 'Saytda menyu bilan tanishing. Yetkazib berish va olib ketish buyurtmalari Telegram bot orqali qabul qilinadi.',
-    sub_ru: 'Посмотрите меню на сайте. Заказы на доставку и самовывоз принимаются через Telegram-бот.',
-    cta: 'bot',
+    title_uz: 'Taomlarni saytdan buyurtma bering',
+    title_ru: 'Смотрите меню и заказывайте на сайте',
+    sub_uz: 'Menyudan taom tanlang, savatni to‘ldiring va buyurtmani saytda rasmiylashtiring.',
+    sub_ru: 'Выберите блюда, соберите корзину и оформите заказ прямо на сайте.',
+    cta: 'order',
   },
   {
     image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80',
@@ -66,7 +66,7 @@ const SLIDES: Slide[] = [
   },
 ];
 
-export default function HeroCarousel({ lang, onExploreClick, onBookingClick, onBotOrder }: HeroCarouselProps) {
+export default function HeroCarousel({ lang, onExploreClick, onBookingClick, onOrderClick }: HeroCarouselProps) {
   const t = TRANSLATIONS[lang];
   const isUz = lang === 'uz';
   const [current, setCurrent] = useState(0);
@@ -106,15 +106,15 @@ export default function HeroCarousel({ lang, onExploreClick, onBookingClick, onB
 
   const runPrimaryAction = () => {
     if (slide.cta === 'booking') onBookingClick();
-    else if (slide.cta === 'bot') onBotOrder();
+    else if (slide.cta === 'order') onOrderClick();
     else onExploreClick();
   };
 
   const primaryText =
     slide.cta === 'booking'
       ? isUz ? 'Joy band qilish' : 'Забронировать'
-      : slide.cta === 'bot'
-        ? isUz ? 'Botda buyurtma' : 'Заказать в боте'
+      : slide.cta === 'order'
+        ? isUz ? 'Buyurtma berish' : 'Заказать'
         : t.exploreMenu;
 
   return (

@@ -47,7 +47,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     marqueeFreeDelivery: 'Tez va ishonchli yetkazamiz',
     marqueeFreshDishes: 'Yangi yopilgan issiq nonlar',
     marqueeHotAndFresh: 'Issiq va sersuv kaboblar',
-    marqueeTgOrder: 'Telegram bot orqali buyurtma',
+    marqueeTgOrder: 'Sayt orqali qulay buyurtma',
     marqueeTradition: 'Asliy milliy ta’m',
 
     // Value Strip "Nega Yalpiz"
@@ -60,7 +60,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     whyTasteTitle: 'Haqiqiy Milliy Lazzat',
     whyTasteDesc: 'Avloddan-avlodga o‘tib kelayotgan haqiqiy o‘zbekcha o‘tin oshi ta’mi.',
     whyAppTitle: 'Qulay Buyurtma Berish',
-    whyAppDesc: 'Telegram bot orqali bir necha bosqichda qulay buyurtma bering.',
+    whyAppDesc: 'Menyudan tanlang, savatga qo‘shing va saytda qulay buyurtma bering.',
 
     // Category Selector
     cat_all: 'Barchasi',
@@ -97,7 +97,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     paymentDesc: 'Siz buyurtmani o‘zingizga qulay tarzda to‘lashingiz mumkin:',
     payme: 'Payme orqali onlayn',
     click: 'Click orqali onlayn',
-    cash: 'Kuryerga naqd yoki karta orqali',
+    cash: 'Naqd — faqat olib ketishda',
 
     // Cart Drawer & Checkout
     cartTitle: 'Sizning savatingiz',
@@ -131,7 +131,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     footerSlogan: 'O‘zbek milliy oshxonasining eng sara an’analari zamonaviy ko‘rinishda.',
     footerHours: 'Ish vaqti: Har kuni 10:00 dan 00:00 gacha',
     footerSocials: 'Biz ijtimoiy tarmoqlarda',
-    footerBot: 'Telegram-bot orqali qulay va tez buyurtma bering',
+    footerBot: 'Naqd olib ketish buyurtmasini Telegram orqali xavfsiz tasdiqlang',
     footerApp: 'Tez kunda Google Play va App Store platformalarida',
     footerRights: 'Barcha huquqlar himoyalangan.',
   },
@@ -165,7 +165,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     marqueeFreeDelivery: 'Быстрая и надёжная доставка',
     marqueeFreshDishes: 'Горячие лепешки из тандыра',
     marqueeHotAndFresh: 'Горячие сочные шашлыки',
-    marqueeTgOrder: 'Заказ через Telegram-бот',
+    marqueeTgOrder: 'Удобный заказ на сайте',
     marqueeTradition: 'Оригинальный узбекский вкус',
 
     // Value Strip "Nega Yalpiz"
@@ -178,7 +178,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     whyTasteTitle: 'Аутентичный Вкус',
     whyTasteDesc: 'Настоящий плов на дровах по рецептам, передаваемым из поколения в поколение.',
     whyAppTitle: 'Удобный Заказ',
-    whyAppDesc: 'Удобно оформляйте заказ через Telegram-бот в несколько шагов.',
+    whyAppDesc: 'Выберите блюда, добавьте в корзину и удобно оформите заказ на сайте.',
 
     // Category Selector
     cat_all: 'Все блюда',
@@ -215,7 +215,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     paymentDesc: 'Вы можете оплатить свой заказ любым удобным для вас способом:',
     payme: 'Онлайн через Payme',
     click: 'Онлайн через Click',
-    cash: 'Наличными или картой курьеру',
+    cash: 'Наличные — только при самовывозе',
 
     // Cart Drawer & Checkout
     cartTitle: 'Ваша корзина',
@@ -249,7 +249,7 @@ export const TRANSLATIONS: Record<Language, Record<string, string>> = {
     footerSlogan: 'Лучшие традиции узбекской национальной кухни в современном и стильном исполнении.',
     footerHours: 'Время работы: Ежедневно с 10:00 до 00:00',
     footerSocials: 'Мы в социальных сетях',
-    footerBot: 'Заказывайте удобно и быстро через Telegram-бот',
+    footerBot: 'Безопасно подтверждайте наличный самовывоз через Telegram',
     footerApp: 'Скоро в Google Play и App Store',
     footerRights: 'Все права защищены.',
   }

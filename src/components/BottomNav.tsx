@@ -1,61 +1,31 @@
-import { CalendarCheck, Home, Send, UtensilsCrossed } from 'lucide-react';
+import { CalendarCheck, Home, ShoppingBag, UtensilsCrossed } from 'lucide-react';
 import { Language } from '../types';
 
 interface BottomNavProps {
   lang: Language;
+  cartCount: number;
   onNavigate: (href: string) => void;
-  onBotOrder: () => void;
+  onCartOpen: () => void;
 }
 
-export default function BottomNav({ lang, onNavigate, onBotOrder }: BottomNavProps) {
+export default function BottomNav({ lang, cartCount, onNavigate, onCartOpen }: BottomNavProps) {
   const isUz = lang === 'uz';
-
   const items = [
-    {
-      id: 'home',
-      label: isUz ? 'Bosh sahifa' : 'Главная',
-      icon: Home,
-      action: () => onNavigate('#home'),
-    },
-    {
-      id: 'menu',
-      label: isUz ? 'Menyu' : 'Меню',
-      icon: UtensilsCrossed,
-      action: () => onNavigate('#menu'),
-    },
-    {
-      id: 'booking',
-      label: isUz ? 'Bron' : 'Бронь',
-      icon: CalendarCheck,
-      action: () => onNavigate('#booking'),
-    },
-    {
-      id: 'bot',
-      label: isUz ? 'Buyurtma' : 'Заказать',
-      icon: Send,
-      action: onBotOrder,
-    },
+    { id: 'home', label: isUz ? 'Bosh sahifa' : 'Главная', icon: Home, action: () => onNavigate('#home') },
+    { id: 'menu', label: isUz ? 'Menyu' : 'Меню', icon: UtensilsCrossed, action: () => onNavigate('#menu') },
+    { id: 'booking', label: isUz ? 'Bron' : 'Бронь', icon: CalendarCheck, action: () => onNavigate('#booking') },
+    { id: 'cart', label: isUz ? 'Savat' : 'Корзина', icon: ShoppingBag, action: onCartOpen },
   ];
 
   return (
-    <nav
-      id="mobile-bottom-nav"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#f7f5f0]/95 backdrop-blur-md border-t border-brand-primary/10 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg flex items-center justify-around"
-      aria-label={isUz ? 'Mobil navigatsiya' : 'Мобильная навигация'}
-    >
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#f7f5f0]/95 backdrop-blur-md border-t border-brand-primary/10 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg flex items-center justify-around" aria-label={isUz ? 'Mobil navigatsiya' : 'Мобильная навигация'}>
       {items.map((item) => {
         const Icon = item.icon;
         return (
-          <button
-            key={item.id}
-            type="button"
-            onClick={item.action}
-            className="flex flex-col items-center justify-center py-1 px-2 text-[10px] sm:text-xs font-semibold rounded-xl transition-colors text-brand-dark/65 hover:text-brand-primary min-w-[64px]"
-          >
-            <div className="p-1.5 rounded-xl text-current">
-              <Icon className="w-5 h-5" />
-            </div>
+          <button key={item.id} type="button" onClick={item.action} className="relative flex flex-col items-center justify-center py-1 px-2 text-[10px] sm:text-xs font-semibold rounded-xl text-brand-dark/65 hover:text-brand-primary min-w-16">
+            <div className="p-1.5 rounded-xl"><Icon className="w-5 h-5" /></div>
             <span className="mt-0.5 leading-none">{item.label}</span>
+            {item.id === 'cart' && cartCount > 0 && <span className="absolute top-0 right-2 bg-brand-accent text-brand-dark text-[9px] font-black rounded-full min-w-4 h-4 px-1 flex items-center justify-center border border-white">{cartCount}</span>}
           </button>
         );
       })}
