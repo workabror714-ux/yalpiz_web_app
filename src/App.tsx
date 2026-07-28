@@ -62,8 +62,8 @@ export default function App() {
     const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (description) {
       description.content = lang === 'uz'
-        ? 'Yalpiz — Shota Rustaveli 115 dagi oilaviy restoran. Menyu, sayt orqali buyurtma, yetkazib berish, olib ketish va joy band qilish.'
-        : 'Yalpiz — семейный ресторан на Шота Руставели, 115. Меню, заказ на сайте, доставка, самовывоз и бронирование.';
+        ? 'Yalpiz — Shota Rustaveli 115 dagi oilaviy restoran. Menyu, sayt orqali onlayn to‘lovli yetkazib berish va joy band qilish.'
+        : 'Yalpiz — семейный ресторан на Шота Руставели, 115. Меню, доставка с онлайн-оплатой на сайте и бронирование.';
     }
   }, [lang]);
 

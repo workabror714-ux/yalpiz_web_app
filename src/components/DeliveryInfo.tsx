@@ -18,17 +18,17 @@ export default function DeliveryInfo({ lang, onOrderClick }: DeliveryInfoProps) 
     },
     {
       icon: MapPin,
-      titleUz: 'Usulni tanlang',
-      titleRu: 'Выберите способ',
-      textUz: 'Yetkazib berish yoki olib ketishni tanlang.',
-      textRu: 'Выберите доставку или самовывоз.',
+      titleUz: 'Manzilni kiriting',
+      titleRu: 'Укажите адрес',
+      textUz: 'Yetkazib berish manzili va geolokatsiyangizni belgilang.',
+      textRu: 'Укажите адрес доставки и свою геолокацию.',
     },
     {
       icon: ShieldCheck,
-      titleUz: 'Xavfsiz tasdiqlang',
-      titleRu: 'Безопасно подтвердите',
-      textUz: 'Naqd buyurtma Telegramda tasdiqlangandan keyin kassaga tushadi.',
-      textRu: 'Заказ за наличные попадёт на кассу после подтверждения в Telegram.',
+      titleUz: 'Onlayn to‘lang',
+      titleRu: 'Оплатите онлайн',
+      textUz: 'Taomlar uchun Click yoki Payme orqali xavfsiz to‘lov qiling.',
+      textRu: 'Безопасно оплатите блюда через Click или Payme.',
     },
   ];
 
@@ -43,12 +43,12 @@ export default function DeliveryInfo({ lang, onOrderClick }: DeliveryInfoProps) 
             </div>
             <div className="space-y-3">
               <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-brand-dark">
-                {isUz ? 'Taomlarni saytdan buyurtma bering' : 'Заказывайте блюда на сайте'}
+                {isUz ? 'Taomlarni saytdan yetkazib berishga buyurtma bering' : 'Закажите доставку блюд на сайте'}
               </h2>
               <p className="font-sans text-brand-muted text-sm sm:text-base leading-relaxed max-w-2xl">
                 {isUz
-                  ? 'Menyu, savat, yetkazib berish va olib ketish xizmatlari shu saytning o‘zida ishlaydi. Soxta buyurtmalardan himoya uchun naqd buyurtma Telegram orqali tasdiqlanadi.'
-                  : 'Меню, корзина, доставка и самовывоз доступны прямо на сайте. Для защиты от ложных заказов наличный заказ подтверждается через Telegram.'}
+                  ? 'Sayt orqali faqat yetkazib berish buyurtmasi qabul qilinadi. Taomlar uchun Click yoki Payme orqali oldindan onlayn to‘lov qilinadi.'
+                  : 'На сайте принимаются только заказы на доставку. Блюда оплачиваются заранее онлайн через Click или Payme.'}
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -62,25 +62,25 @@ export default function DeliveryInfo({ lang, onOrderClick }: DeliveryInfoProps) 
             </div>
             <button type="button" onClick={onOrderClick} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-brand-primary hover:bg-brand-dark text-white font-bold rounded-2xl transition-colors shadow-md">
               <ShoppingBag className="w-5 h-5" />
-              {isUz ? 'Buyurtma berish' : 'Оформить заказ'}
+              {isUz ? 'Yetkazib berishga buyurtma berish' : 'Заказать доставку'}
             </button>
           </div>
 
           <div className="bg-brand-dark text-white rounded-[28px] p-6 sm:p-8 shadow-xl relative overflow-hidden">
             <div className="absolute -right-16 -top-16 w-48 h-48 bg-brand-accent/10 rounded-full blur-2xl" />
             <div className="relative space-y-6">
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold">{isUz ? 'Yetkazib berish va olib ketish' : 'Доставка и самовывоз'}</h3>
+              <h3 className="font-serif text-2xl sm:text-3xl font-bold">{isUz ? 'Onlayn to‘lovli yetkazib berish' : 'Доставка с онлайн-оплатой'}</h3>
               <div className="space-y-4">
                 <div className="flex gap-3">
                   <div className="w-10 h-10 rounded-xl bg-white/10 text-brand-accent flex items-center justify-center flex-shrink-0"><Bike className="w-5 h-5" /></div>
-                  <div><h4 className="font-bold text-sm">{isUz ? 'Yetkazib berish' : 'Доставка'}</h4><p className="text-white/70 text-xs mt-1 leading-relaxed">{isUz ? 'Manzil va geolokatsiyani kiriting. Yetkazib berishda Click yoki Payme orqali online to‘lov qilinadi.' : 'Укажите адрес и геолокацию. Для доставки оплата производится онлайн через Click или Payme.'}</p></div>
+                  <div><h4 className="font-bold text-sm">{isUz ? 'Yetkazib berish' : 'Доставка'}</h4><p className="text-white/70 text-xs mt-1 leading-relaxed">{isUz ? 'Manzil va geolokatsiyani kiriting. Taomlar uchun Click yoki Payme orqali onlayn to‘lov qilinadi.' : 'Укажите адрес и геолокацию. Блюда оплачиваются онлайн через Click или Payme.'}</p></div>
                 </div>
                 <div className="flex gap-3">
                   <div className="w-10 h-10 rounded-xl bg-white/10 text-brand-accent flex items-center justify-center flex-shrink-0"><MapPin className="w-5 h-5" /></div>
-                  <div><h4 className="font-bold text-sm">{isUz ? 'Olib ketish' : 'Самовывоз'}</h4><p className="text-white/70 text-xs mt-1 leading-relaxed">{isUz ? 'Buyurtmani Shota Rustaveli 115 dagi Yalpiz restoranidan olib ketishingiz mumkin. Naqd buyurtma Telegram orqali tasdiqlanadi.' : 'Заказ можно забрать в ресторане Yalpiz на Шота Руставели, 115. Наличный заказ подтверждается через Telegram.'}</p></div>
+                  <div><h4 className="font-bold text-sm">{isUz ? 'Taxi narxi' : 'Стоимость такси'}</h4><p className="text-white/70 text-xs mt-1 leading-relaxed">{isUz ? 'Taxi narxi Millenium tizimidan aniq hisoblanadi va haydovchiga alohida naqd to‘lanadi.' : 'Стоимость такси точно рассчитывается системой Millenium и оплачивается водителю отдельно наличными.'}</p></div>
                 </div>
               </div>
-              <div className="pt-5 border-t border-white/10 text-xs text-white/60 flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-brand-accent flex-shrink-0" />{isUz ? 'Tasdiqlangan buyurtma avtomatik Delever va Neon Alisa kassasiga tushadi.' : 'Подтверждённый заказ автоматически поступает в Delever и кассу Neon Alisa.'}</div>
+              <div className="pt-5 border-t border-white/10 text-xs text-white/60 flex items-start gap-2"><CheckCircle2 className="w-4 h-4 text-brand-accent flex-shrink-0" />{isUz ? 'Onlayn to‘lov tasdiqlangach buyurtma Delever va Neon Alisa kassasiga yuboriladi.' : 'После подтверждения онлайн-оплаты заказ отправляется в Delever и кассу Neon Alisa.'}</div>
             </div>
           </div>
         </div>

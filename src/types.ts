@@ -27,10 +27,10 @@ export interface CartItem {
 export interface OrderDetails {
   name: string;
   phone: string;
-  type: 'delivery' | 'pickup';
+  type: 'delivery';
   address: string;
   branchId: string;
-  payment: 'payme' | 'click' | 'cash';
+  payment: 'payme' | 'click';
   comment: string;
 }
 

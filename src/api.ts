@@ -141,8 +141,8 @@ export interface CreateOrderPayload {
   customerName: string;
   customerPhone: string;
   items: { foodId: string; title: string; quantity: number }[];
-  orderType: 'delivery' | 'pickup';
-  paymentType: 'payme' | 'click' | 'cash';
+  orderType: 'delivery';
+  paymentType: 'payme' | 'click';
   address?: string;
   location?: { lat: number; lng: number } | null;
   filialId?: string;
@@ -181,89 +181,6 @@ export async function createOrder(payload: CreateOrderPayload): Promise<CreateOr
     };
   } catch {
     return { ok: false, message: 'Tarmoq xatosi. Internet aloqasini tekshiring.' };
-  }
-}
-
-export interface WebsiteConfirmationResult {
-  ok: boolean;
-  message: string;
-  pendingOrderId?: string;
-  confirmationUrl?: string;
-  confirmationToken?: string;
-  expiresAt?: string;
-}
-
-export async function createWebsiteOrderConfirmation(
-  payload: CreateOrderPayload,
-): Promise<WebsiteConfirmationResult> {
-  if (!API) return { ok: false, message: "Backend sozlanmagan (VITE_API_URL yo‘q)." };
-
-  try {
-    const response = await fetch(`${API}/api/website-orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const data = await response.json().catch(() => ({} as Record<string, unknown>));
-    if (!response.ok) {
-      return { ok: false, message: String(data?.message || `Xato (${response.status})`) };
-    }
-    return {
-      ok: true,
-      message: String(data?.message || 'Telegram orqali tasdiqlang.'),
-      pendingOrderId: typeof data?.pendingOrderId === 'string' ? data.pendingOrderId : '',
-      confirmationUrl: typeof data?.confirmationUrl === 'string' ? data.confirmationUrl : '',
-      confirmationToken: typeof data?.confirmationToken === 'string' ? data.confirmationToken : '',
-      expiresAt: typeof data?.expiresAt === 'string' ? data.expiresAt : '',
-    };
-  } catch {
-    return { ok: false, message: 'Tarmoq xatosi. Internet aloqasini tekshiring.' };
-  }
-}
-
-export type WebsiteConfirmationStatus =
-  | 'pending'
-  | 'bound'
-  | 'processing'
-  | 'confirmed'
-  | 'cancelled'
-  | 'expired'
-  | 'failed';
-
-export interface WebsiteConfirmationStatusResult {
-  ok: boolean;
-  status?: WebsiteConfirmationStatus;
-  message: string;
-  orderId?: string;
-  paymentUrl?: string;
-}
-
-export async function checkWebsiteOrderConfirmation(
-  pendingOrderId: string,
-  token: string,
-): Promise<WebsiteConfirmationStatusResult> {
-  if (!API || !pendingOrderId || !token) {
-    return { ok: false, message: 'Tasdiqlash ma’lumoti topilmadi.' };
-  }
-
-  try {
-    const response = await fetch(
-      `${API}/api/website-orders/${encodeURIComponent(pendingOrderId)}/status?token=${encodeURIComponent(token)}`,
-      { headers: { Accept: 'application/json' } },
-    );
-    const data = await response.json().catch(() => ({} as Record<string, unknown>));
-    if (!response.ok) {
-      return { ok: false, message: String(data?.message || `Xato (${response.status})`) };
-    }
-    return {
-      ok: true,
-      status: data?.status as WebsiteConfirmationStatus,
-      message: String(data?.message || ''),
-      orderId: typeof data?.orderId === 'string' ? data.orderId : '',
-      paymentUrl: typeof data?.paymentUrl === 'string' ? data.paymentUrl : '',
-    };
-  } catch {
-    return { ok: false, message: 'Tasdiqlash holatini tekshirib bo‘lmadi.' };
   }
 }
 

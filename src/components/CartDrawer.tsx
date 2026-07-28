@@ -2,12 +2,9 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   CheckCircle2,
-  CreditCard,
   MapPin,
   Minus,
   Plus,
-  RefreshCw,
-  Send,
   ShoppingBag,
   Trash2,
   X,
@@ -17,9 +14,7 @@ import { CartItem, Language, OrderDetails } from '../types';
 import {
   Branch,
   calculateDeliveryPrice,
-  checkWebsiteOrderConfirmation,
   createOrder,
-  createWebsiteOrderConfirmation,
   fetchBranches,
 } from '../api';
 import { BRANCHES } from '../data';
@@ -35,15 +30,6 @@ interface CartDrawerProps {
   onClearCart: () => void;
 }
 
-interface ConfirmationState {
-  pendingOrderId: string;
-  token: string;
-  url: string;
-  expiresAt: string;
-  status: 'pending' | 'bound' | 'processing' | 'confirmed' | 'cancelled' | 'expired' | 'failed';
-  actualOrderId?: string;
-  message?: string;
-}
 
 const normalizeUzPhoneInput = (value: string): string => {
   let digits = value.replace(/\D/g, '');
@@ -54,10 +40,10 @@ const normalizeUzPhoneInput = (value: string): string => {
 const initialDetails = (): OrderDetails => ({
   name: localStorage.getItem('yalpiz_user_name') || '',
   phone: normalizeUzPhoneInput(localStorage.getItem('yalpiz_user_phone') || ''),
-  type: 'pickup',
+  type: 'delivery',
   address: localStorage.getItem('yalpiz_user_address') || '',
   branchId: BRANCHES[0]?.id || '',
-  payment: 'cash',
+  payment: 'payme',
   comment: '',
 });
 
@@ -80,7 +66,6 @@ export default function CartDrawer({
   const [deliveryPriceError, setDeliveryPriceError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [confirmation, setConfirmation] = useState<ConfirmationState | null>(null);
   const [successOrderId, setSuccessOrderId] = useState('');
 
   const subtotal = useMemo(
@@ -150,52 +135,12 @@ export default function CartDrawer({
     return () => { cancelled = true; };
   }, [details.type, details.branchId, location?.lat, location?.lng]);
 
-  useEffect(() => {
-    if (!confirmation || ['confirmed', 'cancelled', 'expired', 'failed'].includes(confirmation.status)) return;
-
-    let stopped = false;
-    const check = async () => {
-      const result = await checkWebsiteOrderConfirmation(confirmation.pendingOrderId, confirmation.token);
-      if (stopped || !result.ok || !result.status) return;
-
-      setConfirmation((current) =>
-        current
-          ? {
-              ...current,
-              status: result.status!,
-              actualOrderId: result.orderId || current.actualOrderId,
-              message: result.message,
-            }
-          : current,
-      );
-
-      if (result.status === 'confirmed') {
-        onClearCart();
-        setSuccessOrderId(result.orderId ? result.orderId.slice(-5) : '—');
-      }
-    };
-
-    void check();
-    const timer = window.setInterval(() => void check(), 2500);
-    return () => {
-      stopped = true;
-      window.clearInterval(timer);
-    };
-  }, [confirmation?.pendingOrderId, confirmation?.token, confirmation?.status, onClearCart]);
 
   const setField = (field: keyof OrderDetails, value: string) => {
     setDetails((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: '', submit: '' }));
   };
 
-  const selectType = (type: 'delivery' | 'pickup') => {
-    setDetails((current) => ({
-      ...current,
-      type,
-      payment: type === 'delivery' && current.payment === 'cash' ? 'payme' : current.payment,
-    }));
-    setErrors({});
-  };
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
@@ -233,13 +178,8 @@ export default function CartDrawer({
       next.phone = isUz ? 'Telefon raqamini 9 ta raqam bilan kiriting.' : 'Введите 9 цифр номера.';
     }
     if (!cart.length) next.submit = isUz ? 'Savat bo‘sh.' : 'Корзина пуста.';
-    if (details.type === 'delivery') {
-      if (!details.address.trim()) next.address = isUz ? 'Manzilni kiriting.' : 'Введите адрес.';
-      if (!location) next.location = isUz ? 'Joylashuvni aniqlang.' : 'Определите местоположение.';
-    }
-    if (details.payment === 'cash' && details.type !== 'pickup') {
-      next.payment = isUz ? 'Naqd to‘lov faqat olib ketishda.' : 'Наличные доступны только при самовывозе.';
-    }
+    if (!details.address.trim()) next.address = isUz ? 'Manzilni kiriting.' : 'Введите адрес.';
+    if (!location) next.location = isUz ? 'Joylashuvni aniqlang.' : 'Определите местоположение.';
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -247,9 +187,7 @@ export default function CartDrawer({
   const buildPayload = () => {
     const branch = branchList.find((item) => item.id === details.branchId);
     const comment = details.comment.trim();
-    const baseAddress = details.type === 'delivery'
-      ? details.address.trim()
-      : branch?.address || (isUz ? 'Yalpiz — Shota Rustaveli 115' : 'Yalpiz — Шота Руставели 115');
+    const baseAddress = details.address.trim();
     const address = comment ? `${baseAddress} | Izoh: ${comment}` : baseAddress;
 
     return {
@@ -260,10 +198,10 @@ export default function CartDrawer({
         title: isUz ? entry.item.name_uz : entry.item.name_ru,
         quantity: entry.quantity,
       })),
-      orderType: details.type,
+      orderType: 'delivery' as const,
       paymentType: details.payment,
       address,
-      location: details.type === 'delivery' ? location : null,
+      location,
       filialId: details.branchId,
       filialName: branch?.name || '',
       persons: 1,
@@ -280,29 +218,9 @@ export default function CartDrawer({
     setErrors({});
     localStorage.setItem('yalpiz_user_name', details.name.trim());
     localStorage.setItem('yalpiz_user_phone', `+998${details.phone}`);
-    if (details.type === 'delivery') localStorage.setItem('yalpiz_user_address', details.address.trim());
+    localStorage.setItem('yalpiz_user_address', details.address.trim());
 
     const payload = buildPayload();
-
-    if (details.payment === 'cash' && details.type === 'pickup') {
-      const result = await createWebsiteOrderConfirmation(payload);
-      setSubmitting(false);
-      if (!result.ok || !result.pendingOrderId || !result.confirmationToken || !result.confirmationUrl) {
-        setErrors({ submit: result.message });
-        return;
-      }
-
-      setConfirmation({
-        pendingOrderId: result.pendingOrderId,
-        token: result.confirmationToken,
-        url: result.confirmationUrl,
-        expiresAt: result.expiresAt || '',
-        status: 'pending',
-        message: result.message,
-      });
-      window.open(result.confirmationUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
 
     const result = await createOrder(payload);
     setSubmitting(false);
@@ -320,7 +238,6 @@ export default function CartDrawer({
   };
 
   const reset = () => {
-    setConfirmation(null);
     setSuccessOrderId('');
     setDetails(initialDetails());
     setErrors({});
@@ -330,7 +247,6 @@ export default function CartDrawer({
     onClose();
   };
 
-  const showConfirmation = confirmation && !successOrderId;
 
   return (
     <AnimatePresence>
@@ -362,9 +278,7 @@ export default function CartDrawer({
                 <h2 id="cart-title" className="font-serif text-xl font-bold text-brand-dark">
                   {successOrderId
                     ? isUz ? 'Buyurtma tasdiqlandi' : 'Заказ подтверждён'
-                    : showConfirmation
-                      ? isUz ? 'Telegramda tasdiqlang' : 'Подтвердите в Telegram'
-                      : isUz ? 'Savat va buyurtma' : 'Корзина и заказ'}
+                    : isUz ? 'Savat va buyurtma' : 'Корзина и заказ'}
                 </h2>
               </div>
               <button
@@ -399,86 +313,6 @@ export default function CartDrawer({
                   <button type="button" onClick={reset} className="px-6 py-3 bg-brand-primary text-white font-bold rounded-xl">
                     {isUz ? 'Yopish' : 'Закрыть'}
                   </button>
-                </div>
-              ) : showConfirmation ? (
-                <div className="min-h-[70vh] p-7 sm:p-9 flex flex-col items-center justify-center text-center gap-5">
-                  <div className="w-20 h-20 rounded-full bg-[#229ED9]/10 text-[#229ED9] flex items-center justify-center">
-                    <Send className="w-10 h-10" />
-                  </div>
-                  <div className="space-y-2 max-w-sm">
-                    <h3 className="font-serif text-2xl font-bold">
-                      {isUz ? 'Buyurtmani Telegramda tasdiqlang' : 'Подтвердите заказ в Telegram'}
-                    </h3>
-                    <p className="text-brand-muted text-sm leading-relaxed">
-                      {isUz
-                        ? 'Soxta buyurtmalardan himoya uchun avval Telegramdagi telefon raqamingizni yuboring, so‘ng “Tasdiqlash”ni bosing. Shundan keyingina buyurtma kassaga yuboriladi.'
-                        : 'Для защиты от ложных заказов сначала отправьте свой номер телефона в Telegram, затем нажмите «Подтвердить». Только после этого заказ попадёт на кассу.'}
-                    </p>
-                  </div>
-
-                  <div className="w-full max-w-sm rounded-2xl border border-brand-primary/10 bg-white p-4 text-left text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-brand-muted">{isUz ? 'Holat' : 'Статус'}</span>
-                      <strong className={confirmation.status === 'failed' ? 'text-red-600' : 'text-brand-primary'}>
-                        {confirmation.status === 'bound'
-                          ? isUz ? 'Telefon va buyurtma tasdig‘i kutilmoqda' : 'Ожидается подтверждение телефона и заказа'
-                          : confirmation.status === 'processing'
-                            ? isUz ? 'Kassaga yuborilmoqda…' : 'Отправляется на кассу…'
-                            : confirmation.status === 'failed'
-                              ? isUz ? 'Xatolik' : 'Ошибка'
-                              : confirmation.status === 'cancelled'
-                                ? isUz ? 'Bekor qilindi' : 'Отменён'
-                                : confirmation.status === 'expired'
-                                  ? isUz ? 'Vaqti tugadi' : 'Срок истёк'
-                                  : isUz ? 'Telegram ochilishi kutilmoqda' : 'Ожидается открытие Telegram'}
-                      </strong>
-                    </div>
-                    {confirmation.expiresAt && (
-                      <p className="text-xs text-brand-muted mt-2">
-                        {isUz ? 'Havola 10 daqiqa amal qiladi.' : 'Ссылка действует 10 минут.'}
-                      </p>
-                    )}
-                    {confirmation.status === 'failed' && confirmation.message && (
-                      <p className="text-xs text-red-600 mt-2">{confirmation.message}</p>
-                    )}
-                  </div>
-
-                  <div className="w-full max-w-sm grid gap-3">
-                    {['failed', 'cancelled', 'expired'].includes(confirmation.status) && (
-                      <button
-                        type="button"
-                        onClick={() => { setConfirmation(null); setErrors({}); }}
-                        className="w-full py-3.5 bg-brand-primary text-white font-bold rounded-xl"
-                      >
-                        {isUz ? 'Buyurtmani qayta rasmiylashtirish' : 'Оформить заказ заново'}
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => window.open(confirmation.url, '_blank', 'noopener,noreferrer')}
-                      className="w-full py-3.5 bg-[#229ED9] text-white font-bold rounded-xl inline-flex items-center justify-center gap-2"
-                    >
-                      <Send className="w-5 h-5" />
-                      {isUz ? 'Telegramni ochish' : 'Открыть Telegram'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const result = await checkWebsiteOrderConfirmation(confirmation.pendingOrderId, confirmation.token);
-                        if (result.ok && result.status) {
-                          setConfirmation((current) => current ? { ...current, status: result.status!, message: result.message } : current);
-                          if (result.status === 'confirmed') {
-                            onClearCart();
-                            setSuccessOrderId(result.orderId ? result.orderId.slice(-5) : '—');
-                          }
-                        }
-                      }}
-                      className="w-full py-3 border border-brand-primary/15 bg-white text-brand-primary font-bold rounded-xl inline-flex items-center justify-center gap-2"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      {isUz ? 'Holatni tekshirish' : 'Проверить статус'}
-                    </button>
-                  </div>
                 </div>
               ) : cart.length === 0 ? (
                 <div className="min-h-[65vh] p-8 flex flex-col items-center justify-center text-center gap-4">
@@ -534,21 +368,9 @@ export default function CartDrawer({
                   <section className="space-y-4 bg-white rounded-2xl border border-brand-primary/5 p-4 sm:p-5">
                     <h3 className="font-bold">{isUz ? 'Buyurtma ma’lumotlari' : 'Данные заказа'}</h3>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => selectType('pickup')}
-                        className={`py-3 rounded-xl border font-bold text-sm ${details.type === 'pickup' ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-primary/10'}`}
-                      >
-                        {isUz ? 'Olib ketish' : 'Самовывоз'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => selectType('delivery')}
-                        className={`py-3 rounded-xl border font-bold text-sm ${details.type === 'delivery' ? 'bg-brand-primary text-white border-brand-primary' : 'border-brand-primary/10'}`}
-                      >
-                        {isUz ? 'Yetkazib berish' : 'Доставка'}
-                      </button>
+                    <div className="rounded-xl border border-brand-primary/15 bg-brand-primary/5 p-3.5 text-sm text-brand-primary font-bold flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      {isUz ? 'Sayt orqali faqat yetkazib berish mavjud' : 'На сайте доступна только доставка'}
                     </div>
 
                     <label className="block text-xs font-bold">
@@ -577,62 +399,45 @@ export default function CartDrawer({
                       {errors.phone && <span className="text-red-600 text-xs mt-1 block">{errors.phone}</span>}
                     </label>
 
-                    {details.type === 'delivery' ? (
-                      <div className="space-y-2">
-                        <label className="block text-xs font-bold">
-                          {isUz ? 'Yetkazib berish manzili' : 'Адрес доставки'}
-                          <textarea
-                            rows={2}
-                            value={details.address}
-                            onChange={(event) => setField('address', event.target.value)}
-                            className={`mt-1 w-full p-3.5 rounded-xl border bg-brand-neutral/30 outline-none ${errors.address ? 'border-red-500' : 'border-brand-primary/10'}`}
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={detectLocation}
-                          disabled={locating}
-                          className={`w-full py-3 rounded-xl border font-bold text-sm inline-flex items-center justify-center gap-2 ${location ? 'border-brand-primary text-brand-primary bg-brand-primary/5' : 'border-brand-primary/10'}`}
-                        >
-                          <MapPin className="w-4 h-4" />
-                          {locating
-                            ? isUz ? 'Aniqlanmoqda…' : 'Определяется…'
-                            : location
-                              ? isUz ? 'Joylashuv aniqlandi' : 'Местоположение определено'
-                              : isUz ? 'Joylashuvimni aniqlash' : 'Определить местоположение'}
-                        </button>
-                        {errors.location && <span className="text-red-600 text-xs block">{errors.location}</span>}
-                      </div>
-                    ) : (
+                    <div className="space-y-2">
                       <label className="block text-xs font-bold">
-                        {isUz ? 'Filial' : 'Филиал'}
-                        <select
-                          value={details.branchId}
-                          onChange={(event) => setField('branchId', event.target.value)}
-                          className="mt-1 w-full p-3.5 rounded-xl border border-brand-primary/10 bg-brand-neutral/30 outline-none"
-                        >
-                          {branchList.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}
-                        </select>
+                        {isUz ? 'Yetkazib berish manzili' : 'Адрес доставки'}
+                        <textarea
+                          rows={2}
+                          value={details.address}
+                          onChange={(event) => setField('address', event.target.value)}
+                          className={`mt-1 w-full p-3.5 rounded-xl border bg-brand-neutral/30 outline-none ${errors.address ? 'border-red-500' : 'border-brand-primary/10'}`}
+                        />
                       </label>
-                    )}
+                      <button
+                        type="button"
+                        onClick={detectLocation}
+                        disabled={locating}
+                        className={`w-full py-3 rounded-xl border font-bold text-sm inline-flex items-center justify-center gap-2 ${location ? 'border-brand-primary text-brand-primary bg-brand-primary/5' : 'border-brand-primary/10'}`}
+                      >
+                        <MapPin className="w-4 h-4" />
+                        {locating
+                          ? isUz ? 'Aniqlanmoqda…' : 'Определяется…'
+                          : location
+                            ? isUz ? 'Joylashuv aniqlandi' : 'Местоположение определено'
+                            : isUz ? 'Joylashuvimni aniqlash' : 'Определить местоположение'}
+                      </button>
+                      {errors.location && <span className="text-red-600 text-xs block">{errors.location}</span>}
+                    </div>
 
                     <div className="space-y-2">
                       <span className="text-xs font-bold block">{isUz ? 'To‘lov turi' : 'Способ оплаты'}</span>
-                      <div className="grid grid-cols-3 gap-2">
-                        {(['payme', 'click', 'cash'] as const).map((method) => {
-                          const disabled = method === 'cash' && details.type !== 'pickup';
-                          return (
-                            <button
-                              key={method}
-                              type="button"
-                              disabled={disabled}
-                              onClick={() => setField('payment', method)}
-                              className={`min-h-14 rounded-xl border text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-40 ${details.payment === method ? 'border-brand-primary bg-brand-primary/5 text-brand-primary ring-2 ring-brand-primary/10' : 'border-brand-primary/10'}`}
-                            >
-                              {method === 'payme' ? <img src="/payme.png" alt="Payme" className="h-5" /> : method === 'click' ? <img src="/click.png" alt="Click" className="h-5" /> : <><CreditCard className="w-4 h-4" />{isUz ? 'Naqd' : 'Наличные'}</>}
-                            </button>
-                          );
-                        })}
+                      <div className="grid grid-cols-2 gap-2">
+                        {(['payme', 'click'] as const).map((method) => (
+                          <button
+                            key={method}
+                            type="button"
+                            onClick={() => setField('payment', method)}
+                            className={`min-h-14 rounded-xl border text-xs font-bold flex items-center justify-center gap-1 ${details.payment === method ? 'border-brand-primary bg-brand-primary/5 text-brand-primary ring-2 ring-brand-primary/10' : 'border-brand-primary/10'}`}
+                          >
+                            <img src={method === 'payme' ? '/payme.png' : '/click.png'} alt={method === 'payme' ? 'Payme' : 'Click'} className="h-5" />
+                          </button>
+                        ))}
                       </div>
                       {errors.payment && <span className="text-red-600 text-xs block">{errors.payment}</span>}
                     </div>
@@ -655,32 +460,21 @@ export default function CartDrawer({
                       <span className="text-sm text-white/70">{isUz ? 'Taomlar jami' : 'Итого за блюда'}</span>
                       <strong className="text-xl text-brand-accent">{price(subtotal)}</strong>
                     </div>
-                    {details.type === 'delivery' && (
-                      <div className="pt-3 border-t border-white/10 text-xs">
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-white/70">{isUz ? 'Taxi narxi (haydovchiga naqd)' : 'Стоимость такси (наличными водителю)'}</span>
-                          <strong>
-                            {deliveryPriceLoading
-                              ? isUz ? 'Hisoblanmoqda…' : 'Расчёт…'
-                              : deliveryPrice !== null ? price(deliveryPrice) : '—'}
-                          </strong>
-                        </div>
-                        {deliveryPriceError && <p className="mt-2 text-amber-300">{deliveryPriceError}</p>}
-                        <p className="mt-2 text-white/55">
-                          {isUz ? 'Click/Payme orqali faqat taomlar summasi to‘lanadi.' : 'Через Click/Payme оплачивается только сумма блюд.'}
-                        </p>
+                    <div className="pt-3 border-t border-white/10 text-xs">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-white/70">{isUz ? 'Taxi narxi (haydovchiga naqd)' : 'Стоимость такси (наличными водителю)'}</span>
+                        <strong>
+                          {deliveryPriceLoading
+                            ? isUz ? 'Hisoblanmoqda…' : 'Расчёт…'
+                            : deliveryPrice !== null ? price(deliveryPrice) : '—'}
+                        </strong>
                       </div>
-                    )}
-                  </section>
-
-                  {details.payment === 'cash' && details.type === 'pickup' && (
-                    <div className="rounded-2xl border border-[#229ED9]/25 bg-[#229ED9]/5 p-4 text-xs text-brand-dark leading-relaxed">
-                      <strong className="block mb-1">{isUz ? 'Telegram tasdig‘i kerak' : 'Нужно подтверждение в Telegram'}</strong>
-                      {isUz
-                        ? 'Naqd buyurtma kassaga faqat Telegramdagi telefon raqami tasdiqlanib, buyurtma ma’qullangandan keyin yuboriladi.'
-                        : 'Заказ за наличные попадёт на кассу только после проверки номера телефона и подтверждения в Telegram.'}
+                      {deliveryPriceError && <p className="mt-2 text-amber-300">{deliveryPriceError}</p>}
+                      <p className="mt-2 text-white/55">
+                        {isUz ? 'Click/Payme orqali faqat taomlar summasi to‘lanadi. Taxi puli haydovchiga alohida naqd beriladi.' : 'Через Click/Payme оплачиваются только блюда. Такси оплачивается водителю отдельно наличными.'}
+                      </p>
                     </div>
-                  )}
+                  </section>
 
                   {errors.submit && <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs text-center">{errors.submit}</div>}
 
@@ -690,11 +484,9 @@ export default function CartDrawer({
                     className="w-full py-4 bg-brand-primary hover:bg-brand-dark disabled:opacity-60 text-white font-bold rounded-2xl shadow-lg inline-flex items-center justify-center gap-2"
                   >
                     {submitting ? (
-                      <><span className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />{isUz ? 'Yuborilmoqda…' : 'Отправляется…'}</>
-                    ) : details.payment === 'cash' ? (
-                      <><Send className="w-5 h-5" />{isUz ? 'Telegram orqali tasdiqlash' : 'Подтвердить через Telegram'}</>
+                      <><span className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin" />{isUz ? 'To‘lovga o‘tilmoqda…' : 'Переход к оплате…'}</>
                     ) : (
-                      <>{isUz ? 'Buyurtma berish va to‘lash' : 'Заказать и оплатить'}</>
+                      <>{isUz ? 'Buyurtma berish va onlayn to‘lash' : 'Заказать и оплатить онлайн'}</>
                     )}
                   </button>
                 </form>
